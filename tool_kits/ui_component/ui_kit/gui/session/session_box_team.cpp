@@ -1,74 +1,50 @@
 ﻿#include "session_form.h"
+#include "session_form.h"
 #include "module/session/session_manager.h"
 
 using namespace ui;
 
 namespace nim_comp
 {
-void SessionForm::UpdateBroad(const Json::Value &broad)
-{
-	std::string output;
-	for(size_t i = 0; i < broad.size(); i++)
-	{
-		std::string title = broad[i]["title"].asString();
-		std::string content = broad[i]["content"].asString();
-		if(!output.empty())
-			output.append("\r\n");
-		output.append(title + " : " + content);
-	}
-	re_broad_->SetUTF8Text(output);
-}
 
-void SessionForm::CheckTeamType(nim::NIMTeamType type)
-{
-	bool show = (type == nim::kNIMTeamTypeAdvanced);
-
-	Control* split = FindControl(L"frame_mid_split");
-	split->SetVisible(show);
-	Control* frame_right = FindControl(L"frame_right");
-	frame_right->SetVisible(show);
-}
-
-void SessionForm::InvokeGetTeamInfo(bool sync_block/* = false*/)
+void SessionBox::InvokeGetTeamInfo(bool sync_block/* = false*/)
 {
 	if (sync_block)
 	{
 		//TODO(oleg) 测试用，不建议使用同步堵塞接口
 		nim::TeamInfo info = nim::Team::QueryTeamInfoBlock(session_id_);
-		OnGetTeamInfoCb(session_id_, info);
+		OnGetTeamInfoCallback(session_id_, info);
 	}
 	else
-		nim::Team::QueryTeamInfoAsync(session_id_, nbase::Bind(&SessionForm::OnGetTeamInfoCb, this, std::placeholders::_1, std::placeholders::_2));
+		nim::Team::QueryTeamInfoAsync(session_id_, nbase::Bind(&SessionBox::OnGetTeamInfoCallback, this, std::placeholders::_1, std::placeholders::_2));
 }
 
-void SessionForm::OnGetTeamInfoCb(const std::string& tid, const nim::TeamInfo& result)
+void SessionBox::OnGetTeamInfoCallback(const std::string& tid, const nim::TeamInfo& result)
 {
 	team_info_ = result;
 
 	std::wstring wname = nbase::UTF8ToUTF16(team_info_.GetName());
 	if (!wname.empty())
 	{
-		SetTaskbarTitle(wname);
-		label_title_->SetText(wname);
+		SetTitleName(wname);
 	}
 
 	if (!team_info_.IsMemberValid())
 	{
-		LeaveTeamHandle();
-		//return;
+		HandleLeaveTeamEvent();
 	}
 	else if (!team_info_.IsValid())
 	{
-		DismissTeamHandle();
+		HandleDismissTeamEvent();
 	}
 	else
 	{
-		EnterTeamHandle();
+		HandleEnterTeamEvent();
 	}
 
 	if (team_info_.GetType() == nim::kNIMTeamTypeAdvanced)
 	{
-		AdjustSizeForAdvancedTeam();
+		session_form_->AdjustFormSize();
 		Json::Value json;
 		if (StringToJson(team_info_.GetAnnouncement(), json))
 		{
@@ -76,24 +52,23 @@ void SessionForm::OnGetTeamInfoCb(const std::string& tid, const nim::TeamInfo& r
 		}
 		else
 		{
-			re_broad_->SetUTF8Text(team_info_.GetAnnouncement());
+			edit_broad_->SetUTF8Text(team_info_.GetAnnouncement());
 		}
 		CheckTeamType(nim::kNIMTeamTypeAdvanced);
-		//member
+
 		InvokeGetTeamMember();
 	}
 
-	btn_header_->SetEnabled(true);
+	is_header_enable_ = true;
 }
 
-
-void SessionForm::InvokeGetTeamMember()
+void SessionBox::InvokeGetTeamMember()
 {
 	btn_refresh_member_->SetEnabled(false);
-	nim::Team::QueryTeamMembersAsync(session_id_, nbase::Bind(&SessionForm::OnGetTeamMemberCb, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	nim::Team::QueryTeamMembersAsync(session_id_, nbase::Bind(&SessionBox::OnGetTeamMemberCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
-void SessionForm::OnGetTeamMemberCb(const std::string& tid, int count, const std::list<nim::TeamMemberProperty>& team_member_info_list)
+void SessionBox::OnGetTeamMemberCallback(const std::string& tid, int count, const std::list<nim::TeamMemberProperty>& team_member_info_list)
 {
 	team_member_info_list_.clear();
 	std::list<std::string> acc_list;
@@ -152,7 +127,16 @@ void SessionForm::OnGetTeamMemberCb(const std::string& tid, int count, const std
 	}
 }
 
-void SessionForm::OnTeamMemberAdd(const std::string& tid, const nim::TeamMemberProperty& team_member_info)
+nim::TeamMemberProperty SessionBox::GetTeamMemberInfo(const std::string& uid)
+{
+	auto iter = team_member_info_list_.find(uid);
+	if (iter != team_member_info_list_.cend())
+		return iter->second;
+	else
+		return nim::TeamMemberProperty();
+}
+
+void SessionBox::OnTeamMemberAdd(const std::string& tid, const nim::TeamMemberProperty& team_member_info)
 {
 	if (!IsTeamMemberType(team_member_info.GetUserType()))
 		return;
@@ -186,7 +170,7 @@ void SessionForm::OnTeamMemberAdd(const std::string& tid, const nim::TeamMemberP
 	}
 }
 
-void SessionForm::OnTeamMemberRemove(const std::string& tid, const std::string& uid)
+void SessionBox::OnTeamMemberRemove(const std::string& tid, const std::string& uid)
 {
 	if(tid == session_id_)
 	{
@@ -207,7 +191,7 @@ void SessionForm::OnTeamMemberRemove(const std::string& tid, const std::string& 
 	}
 }
 
-void SessionForm::OnTeamMemberChange(const std::string& tid_uid, const std::string& team_card)
+void SessionBox::OnTeamMemberChange(const std::string& tid_uid, const std::string& team_card)
 {
 	size_t splitter = tid_uid.find_first_of('#');
 	std::string tid = tid_uid.substr(0, splitter), uid = tid_uid.substr(splitter + 1);
@@ -228,7 +212,7 @@ void SessionForm::OnTeamMemberChange(const std::string& tid_uid, const std::stri
 	}
 }
 
-void SessionForm::OnTeamAdminSet(const std::string& tid, const std::string& uid, bool admin)
+void SessionBox::OnTeamAdminSet(const std::string& tid, const std::string& uid, bool admin)
 {
 	if(tid == session_id_)
 	{
@@ -247,24 +231,7 @@ void SessionForm::OnTeamAdminSet(const std::string& tid, const std::string& uid,
 	}
 }
 
-void SessionForm::SetTeamMuteUI(bool mute)
-{
-	ControlStateType type = mute ? kControlStateDisabled : kControlStateNormal;
-	input_edit_->SetEnabled(!mute);
-	input_edit_->SetReadOnly(mute);
-	//btn_send_->SetEnabled(!mute);
-	FindControl(L"btn_face")->SetEnabled(!mute);
-	FindControl(L"btn_image")->SetEnabled(!mute);
-	FindControl(L"btn_file")->SetEnabled(!mute);
-	FindControl(L"btn_jsb")->SetEnabled(!mute);
-	FindControl(L"btn_tip")->SetEnabled(!mute);
-	FindControl(L"btn_clip")->SetEnabled(!mute);
-	FindControl(L"btn_custom_msg")->SetEnabled(!mute);
-	FindControl(L"input_edit_mute_tip")->SetVisible(mute);
-	FindControl(L"hbox_send")->SetEnabled(!mute);
-}
-
-void SessionForm::OnTeamMuteMember(const std::string& tid, const std::string& uid, bool set_mute)
+void SessionBox::OnTeamMuteMember(const std::string& tid, const std::string& uid, bool set_mute)
 {
 	if (tid == session_id_)
 	{
@@ -279,7 +246,7 @@ void SessionForm::OnTeamMuteMember(const std::string& tid, const std::string& ui
 	}
 }
 
-void SessionForm::OnTeamOwnerChange(const std::string& tid, const std::string& uid)
+void SessionBox::OnTeamOwnerChange(const std::string& tid, const std::string& uid)
 {
 	if (tid == session_id_)
 	{
@@ -310,26 +277,25 @@ void SessionForm::OnTeamOwnerChange(const std::string& tid, const std::string& u
 	}
 }
 
-void SessionForm::OnTeamNameChange(const nim::TeamInfo& team_info)
+void SessionBox::OnTeamNameChange(const nim::TeamInfo& team_info)
 {
 	if (session_id_ == team_info.GetTeamID())
 	{
 		std::wstring name = nbase::UTF8ToUTF16(team_info.GetName());
 
-		SetTaskbarTitle(name);
-		label_title_->SetText(name);
+		SetTitleName(name);
 	}
 }
 
-void SessionForm::OnTeamRemove(const std::string& tid)
+void SessionBox::OnTeamRemove(const std::string& tid)
 {
 	if (tid == session_id_)
 	{
-		LeaveTeamHandle();
+		HandleLeaveTeamEvent();
 	}
 }
 
-bool SessionForm::IsTeamMemberType(const nim::NIMTeamUserType user_type)
+bool SessionBox::IsTeamMemberType(const nim::NIMTeamUserType user_type)
 {
 	if (user_type == nim::kNIMTeamUserTypeNomal || 
 		user_type == nim::kNIMTeamUserTypeManager || 
@@ -339,7 +305,33 @@ bool SessionForm::IsTeamMemberType(const nim::NIMTeamUserType user_type)
 	return false;
 }
 
-void SessionForm::RefreshMsglistShowname(const std::string& uid)
+void SessionBox::SendReceiptIfNeeded(bool auto_detect/* = false*/)
+{
+	//发送已读回执目前只支持P2P会话
+	if (session_type_ != nim::kNIMSessionTypeP2P)
+		return;
+
+	if (auto_detect)
+	{
+		if (session_form_->IsActiveSessionBox(this) || msg_list_ == nullptr || !msg_list_->IsAtEnd())
+		{
+			receipt_need_send_ = true;
+			return;
+		}
+	}
+
+	nim::IMMessage msg;
+	if (GetLastNeedSendReceiptMsg(msg))
+	{
+		receipt_need_send_ = false;
+		nim::MsgLog::SendReceiptAsync(msg.ToJsonString(false), [](const nim::MessageStatusChangedResult& res) {
+			auto iter = res.results_.begin();
+			QLOG_APP(L"mark receipt id:{0} time:{1} rescode:{2}") << iter->talk_id_ << iter->msg_timetag_ << res.rescode_;
+		});
+	}
+}
+
+void SessionBox::RefreshMsglistShowname(const std::string& uid)
 {
 	if (session_type_ != nim::kNIMSessionTypeTeam)
 		return;
@@ -363,6 +355,92 @@ void SessionForm::RefreshMsglistShowname(const std::string& uid)
 				notice_item->RefreshNotice();
 		}
 	}
+}
+
+void SessionBox::SetTeamMuteUI(bool mute)
+{
+	ControlStateType type = mute ? kControlStateDisabled : kControlStateNormal;
+	input_edit_->SetEnabled(!mute);
+	input_edit_->SetReadOnly(mute);
+	btn_capture_audio_->SetEnabled(!mute);
+	//btn_send_->SetEnabled(!mute);
+	FindSubControl(L"btn_face")->SetEnabled(!mute);
+	FindSubControl(L"btn_image")->SetEnabled(!mute);
+	FindSubControl(L"btn_file")->SetEnabled(!mute);
+	FindSubControl(L"btn_jsb")->SetEnabled(!mute);
+	FindSubControl(L"btn_tip")->SetEnabled(!mute);
+	FindSubControl(L"btn_clip")->SetEnabled(!mute);
+	FindSubControl(L"btn_custom_msg")->SetEnabled(!mute);
+	FindSubControl(L"input_edit_mute_tip")->SetVisible(mute);
+	FindSubControl(L"hbox_send")->SetEnabled(!mute);
+}
+
+void SessionBox::UpdateBroad(const Json::Value &broad)
+{
+	std::string output;
+	for (size_t i = 0; i < broad.size(); i++)
+	{
+		std::string title = broad[i]["title"].asString();
+		std::string content = broad[i]["content"].asString();
+		if (!output.empty())
+			output.append("\r\n");
+		output.append(title + " : " + content);
+	}
+	edit_broad_->SetUTF8Text(output);
+}
+
+void SessionBox::CheckTeamType(nim::NIMTeamType type)
+{
+	bool show = (type == nim::kNIMTeamTypeAdvanced);
+
+	Control* split = FindSubControl(L"frame_mid_split");
+	split->SetVisible(show);
+	Control* frame_right = FindSubControl(L"frame_right");
+	frame_right->SetVisible(show);
+}
+
+bool SessionBox::IsAdvancedTeam()
+{
+	return (session_type_ == nim::kNIMSessionTypeTeam && team_info_.GetType() == nim::kNIMTeamTypeAdvanced);
+}
+
+
+void SessionBox::HandleEnterTeamEvent()
+{
+	RemoveTip(STT_LEAVE);
+	is_team_valid_ = true;
+
+	is_header_enable_ = true;
+	input_edit_->SetEnabled(true);
+	btn_send_->SetEnabled(true);
+	FindSubControl(L"btn_custom_msg")->SetEnabled(true);
+	FindSubControl(L"btn_msg_record")->SetEnabled(true);
+}
+
+void SessionBox::HandleLeaveTeamEvent()
+{
+	AddTip(STT_LEAVE);
+	is_team_valid_ = false;
+
+	is_header_enable_ = false;
+	btn_invite_->SetEnabled(false);
+	input_edit_->SetReadOnly(true);
+	FindSubControl(L"bottom_panel")->SetEnabled(false);
+	btn_new_broad_->SetEnabled(false);
+	btn_refresh_member_->SetEnabled(false);
+}
+
+void SessionBox::HandleDismissTeamEvent()
+{
+	AddTip(STT_DISMISS);
+	is_team_valid_ = false;
+
+	is_header_enable_ = false;
+	btn_invite_->SetEnabled(false);
+	input_edit_->SetReadOnly(true);
+	FindSubControl(L"bottom_panel")->SetEnabled(false);
+	btn_new_broad_->SetEnabled(false);
+	btn_refresh_member_->SetEnabled(false);
 }
 
 }
