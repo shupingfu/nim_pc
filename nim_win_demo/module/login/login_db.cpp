@@ -2,10 +2,11 @@
 #include "base/encrypt/encrypt_impl.h"
 #include "shared/tool.h"
 
-namespace nim_comp
+namespace
 {
 #define LOGIN_DATA_FILE		"app_login_data.db"
 static std::vector<UTF8String> kLoginDataSQLs;
+}
 
 LoginDB::LoginDB()
 {
@@ -52,11 +53,11 @@ bool LoginDB::WriteLoginData(LoginData &data)
     db_.Query(stmt, 
 		"INSERT INTO logindata(uid, name, password, type, status, remember, autologin) VALUES (?, ?, ?, ?, ?, ?, ?);");
 
-    stmt.BindText(1, data.user_id_.c_str(), data.user_id_.size());
-    stmt.BindText(2, data.user_name_.c_str(), data.user_name_.size());
+    stmt.BindText(1, data.user_id_.c_str(), (int)data.user_id_.size());
+	stmt.BindText(2, data.user_name_.c_str(), (int)data.user_name_.size());
 	UTF8String password_aes;
 	GetAESPassword(data.user_password_, password_aes);
-    stmt.BindText(3, password_aes.c_str(), password_aes.size());
+	stmt.BindText(3, password_aes.c_str(), (int)password_aes.size());
     stmt.BindInt(4, data.type_);
 	stmt.BindInt(5, data.status_);
 	stmt.BindInt(6, data.remember_);
@@ -198,7 +199,7 @@ bool    LoginDB::QueryLoginDataByUid(UTF8String &uid, LoginData &data)
     bool result = false;
     ndb::SQLiteStatement stmt;
     db_.Query(stmt, "SELECT * FROM logindata WHERE uid=?");
-    stmt.BindText(1, uid.c_str(), uid.size());
+	stmt.BindText(1, uid.c_str(), (int)uid.size());
     uint32_t db_reslut = stmt.NextRow();
     
     if (db_reslut == SQLITE_OK || db_reslut == SQLITE_ROW)
@@ -208,6 +209,7 @@ bool    LoginDB::QueryLoginDataByUid(UTF8String &uid, LoginData &data)
     }
     return result;
 }
+
 
 uint32_t  LoginDB::QueryAllLoginData(std::vector<LoginData> &all_data)
 {
@@ -224,7 +226,7 @@ uint32_t  LoginDB::QueryAllLoginData(std::vector<LoginData> &all_data)
         all_data.push_back(login_data);
         result = stmt.NextRow();
     }
-    return all_data.size();
+    return (uint32_t)all_data.size();
 }
 
 bool    LoginDB::CreateDBFile()
@@ -296,4 +298,62 @@ bool    LoginDB::SetAllLoginDataDeleted()
 	}
 	return no_error;
 }
+
+void	LoginDB::ReadLoginData()
+{
+	try
+	{
+		this->Load();
+		std::vector<LoginData> all_data;
+		this->QueryAllLoginData(all_data);
+		if (all_data.size() > 0)
+		{
+			std::vector<LoginData>::iterator it = all_data.begin();
+			for (; it != all_data.end(); it++)
+			{
+				if (kLoginDataStatusValid == it->status_)
+				{
+					current_login_data_ = *it;
+					break;
+				}
+			}
+		}
+	}
+	catch (...)
+	{
+
+	}
+}
+
+void	LoginDB::SaveLoginData()
+{
+	LoginData login_data;
+	bool ret = this->QueryLoginDataByUid(current_login_data_.user_id_, login_data);
+	if (false == ret)
+	{
+		//不存在，则直接写入，并将原来的登录帐号全部设为已删除
+		this->SetAllLoginDataDeleted();
+		this->WriteLoginData(current_login_data_);
+	}
+	else
+	{
+		this->SetAllLoginDataDeleted();
+		bool password_changed = false;
+		if (true == this->IsNeedUpdateData(&login_data, &current_login_data_, password_changed))
+		{
+			this->UpdateLoginData(current_login_data_.user_id_,
+				&current_login_data_,
+				kLoginDataStatusValid,
+				password_changed);
+		}
+		else
+		{
+			//只更改状态
+			this->SetStatus(current_login_data_.user_id_, kLoginDataStatusValid);
+		}
+		//是否记住帐号密码
+		this->SetRemember(current_login_data_.user_id_, current_login_data_.remember_);
+		//是否自动登录
+		this->SetAutoLogin(current_login_data_.user_id_, current_login_data_.auto_login_);
+	}
 }

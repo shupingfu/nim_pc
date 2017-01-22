@@ -13,8 +13,6 @@ enum LoginDataStatus
 	kLoginDataStatusDeleted,           //已删, 2
 };
 
-namespace nim_comp
-{
 struct LoginData
 {
 	LoginData()
@@ -60,6 +58,27 @@ public:
 	SINGLETON_DEFINE(LoginDB);
     LoginDB();
     virtual ~LoginDB();
+
+public:
+
+	/**
+	* 从数据库读取登陆数据
+	* @return void	无返回值
+	*/
+	void ReadLoginData();
+
+	/**
+	* 保存登录数据
+	* @return void	无返回值
+	*/
+	void SaveLoginData();
+
+	/**
+	* 获取登陆数据
+	* @param[in]
+	* @return LoginData* 登陆数据
+	*/
+	LoginData* GetLoginData(){ return &current_login_data_; }
 
 public:
 	/**
@@ -192,6 +211,8 @@ private:
     nbase::NLock    lock_;
 	std::string		aes_key_;
 	std::string		db_encrypt_key_;
+
+	LoginData current_login_data_;
 };
-}
+
 #endif //NIM_WIN_FM_LOGIN_LOGIN_DB_H_
