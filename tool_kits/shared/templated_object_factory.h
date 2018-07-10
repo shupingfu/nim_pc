@@ -1,6 +1,5 @@
 #pragma once
-//#include <unordered_map>
-namespace nim_comp
+namespace shared
 {
 	class TemplatedObjectFactoryWrapper;
 	/*
@@ -8,29 +7,17 @@ namespace nim_comp
 	功能：根据注册类型的信息创建一个TOBJFLG的实例，类型TBase应是TOBJFLG的父类
 	*/
 	template<typename TBase, typename TOBJFLG>
-	class TemplatedObjectFactory
+	class TemplatedObjectFactory : public nbase::Singleton<TemplatedObjectFactory<typename TBase, typename TOBJFLG>>
 	{
+	private:
+		using _ParentType = nbase::Singleton<TemplatedObjectFactory<typename TBase, typename TOBJFLG>>;
+		using _MyType = TemplatedObjectFactory<typename TBase, typename TOBJFLG>;
 		friend class TemplatedObjectFactoryWrapper;
-	public:
+		SingletonHideConstructor(_MyType);
+	private:
 		TemplatedObjectFactory() = default;
 		~TemplatedObjectFactory() = default;
-	private:
-		/*
-		获取由模板参数 TBase TOBJFLG确定的一个自动创建管理器一个实例
-		*/
-		static TemplatedObjectFactory<TBase, TOBJFLG>* GetInstance()
-		{			
-			static std::unique_ptr<TemplatedObjectFactory<TBase, TOBJFLG>> _instance(nullptr);
-			if (_instance == nullptr)
-			{
-				static nbase::NLock lock;
-				lock.Lock();
-				if (_instance == nullptr)
-					_instance.reset(new TemplatedObjectFactory<TBase, TOBJFLG>);
-				lock.Unlock();
-			}
-			return _instance.get();
-		}
+	private:		
 		/*
 		创建TClass实例的方法, 存在TClass : public TBase的关系
 		params TClass的构造参数
@@ -41,7 +28,6 @@ namespace nim_comp
 		{
 			return dynamic_cast<TBase*>(new TClass(params...));
 		}
-	public:
 		template<typename TClass, typename... TParam>
 		void AddCreateFunction(TOBJFLG flg, const TParam&... params)
 		{			
@@ -88,7 +74,7 @@ namespace nim_comp
 			using TDecayType = std::decay<TOBJFLG>::type;
 			if (std::is_base_of<TBase, TObject>::value)
 			{
-				auto&& manager = nim_comp::TemplatedObjectFactory<TBase, TDecayType>::GetInstance();
+				auto&& manager = TemplatedObjectFactory<TBase, TDecayType>::GetInstance();
 				if (manager != nullptr)
 					manager->AddCreateFunction<TObject>(flg, params...);
 			}				
@@ -98,7 +84,7 @@ namespace nim_comp
 		static auto InstantiateSharedRegisteredOjbect(const TFLG& flag)->std::shared_ptr<TBase>
 		{
 			using TDecayType = std::decay<TFLG>::type;
-			auto&& manager = nim_comp::TemplatedObjectFactory<TBase, TDecayType>::GetInstance();
+			auto&& manager = TemplatedObjectFactory<TBase, TDecayType>::GetInstance();
 			if (manager != nullptr)
 				return manager->CreateSharedObject(flag);
 			return nullptr;
@@ -108,7 +94,7 @@ namespace nim_comp
 		static auto InstantiateRegisteredOjbect(const TFLG& flag)->TBase*
 		{
 			using TDecayType = std::decay<TFLG>::type;
-			auto&& manager = nim_comp::TemplatedObjectFactory<TBase, TDecayType>::GetInstance();
+			auto&& manager = TemplatedObjectFactory<TBase, TDecayType>::GetInstance();
 			if (manager != nullptr)
 				return manager->CreateObject(flag);
 			return nullptr;
@@ -119,7 +105,7 @@ namespace nim_comp
 		{
 			using TDecayType = std::decay<TFLG>::type;
 			std::list<std::shared_ptr<TBase>> ret;
-			auto&& manager = nim_comp::TemplatedObjectFactory<TBase, TDecayType>::GetInstance();
+			auto&& manager = TemplatedObjectFactory<TBase, TDecayType>::GetInstance();
 			if (manager != nullptr)
 				manager->CreateAllSharedObject(ret);			
 			return ret;
