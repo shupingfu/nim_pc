@@ -1,18 +1,28 @@
 ﻿#pragma once
 #include "bubble_item.h"
+#include "nim_p2p_develop_kit.h"
 
 namespace nim_comp
 {
 /** @class MsgBubbleFile
-  * @brief 会话窗体中聊天框内的文件传输消息项
+  * @brief 会话窗体中聊天框内的P2P文件直传消息项
   * @copyright (c) 2015, NetEase Inc. All rights reserved
   * @author Redrain
   * @date 2015/9/11
  */
-class MsgBubbleFile : public MsgBubbleItem
+
+const std::string kJsonKeyCommand					= "command";
+const std::string kJsonKeyTransferFileType			= "type";
+const std::string kJsonKeyCancelTransferFile		= "cancel_transfer";
+const std::string kJsonKeyCancelReceiveFile			= "transfer_cancel_receive";
+const std::string kJsonKeyTransferFileRequest		= "transfer_request";
+const std::string kJsonKeySupportedTransferFile		= "supported_transfer_file";
+const std::string kJsonKeyTryTransferFileRequest	= "try_transfer_file_request";
+
+class MsgBubbleTransferFile : public MsgBubbleItem
 {
 public:
-	virtual ~MsgBubbleFile();
+	virtual ~MsgBubbleTransferFile();
 
 	/**
 	* 初始化控件内部指针
@@ -33,16 +43,7 @@ public:
 	* @param[in] status 消息状态
 	* @return void 无返回值
 	*/
-	virtual void SetMsgStatus(nim::NIMMsgLogStatus status) override;
-
-	/** 
-	* 获取此消息项的文件上传回调函数		
-	* @return FileUpPrgCallback 回调函数
-	*/
-	nim::Talk::FileUpPrgCallback GetFileUpPrgCallback()
-	{
-		return nbase::Bind(&MsgBubbleFile::FileUpPrgCallback, this, std::placeholders::_1, std::placeholders::_2);
-	}
+	void SetBubbleStatus(TransferFileSessionState status, bool write_db = true);
 
 	/**
 	* 处理控件的菜单消息
@@ -50,6 +51,19 @@ public:
 	* @return bool true 继续传递控件消息，false 停止传递控件消息
 	*/
 	bool OnMenu(ui::EventArgs* arg);
+
+	/**
+	 * 传输文件进度回调
+	 * @param[in] total 传输文件总大小
+	 * @param[in] transferred 已经传输的大小
+	 */
+	void OnDownloadFileProgressCallback(int total, int transferred);
+
+	/**
+	 * 返回当前 bubble 绑定的传输文件 sessionId
+	 * @return TransferFileSessionID 该 bubble 绑定的传输文件 sessionId
+	 */
+	TransferFileSessionID GetTransferFileSessionId() { return const_cast<TransferFileSessionID>(transfer_file_session_id_.c_str()); }
 protected:
 
 	/** 
@@ -72,14 +86,6 @@ protected:
 	* @return bool 返回值true: 继续传递控件消息， false: 停止传递控件消息
 	*/
 	bool OnEvent(ui::EventArgs* arg);
-
-	/** 
-	* 文件上传进度的回调函数
-	* @param[in] uploaded_size  已上传大小 
-	* @param[in] file_size		文件总大小			
-	* @return void 无返回值
-	*/
-	void FileUpPrgCallback(int64_t uploaded_size, int64_t file_size);
 
 	/** 
 	* 设置此消息项显示的文件上传(下载)进度
@@ -107,48 +113,17 @@ protected:
 	* @return void 无返回值
 	*/
 	void StartDownload();
-
-	/** 
-	* 文件下载完毕的回调函数
-	* @param[in] res_code 错误码(200代表无错误)
-	* @param[in] file_path 文件下载路径
-	* @param[in] call_id 消息所属的会话id
-	* @param[in] res_id 消息id
-	* @return void 无返回值
-	*/
-	void DownloadResourceCallback1(nim::NIMResCode res_code, const std::string& file_path, const std::string& call_id, const std::string& res_id);
-
 	/**
-	* 文件下载进度的回调函数
-	* @param[in] downloaded_size 已下载大小
-	* @param[in] file_size	文件总大小
+	* 判断是否为文件传输Session的终态（表示会话已结束）
 	* @return void 无返回值
 	*/
-	void DownloadResourceProgressCallback1(__int64 downloaded_size, __int64 file_size);
-
-	/**
-	* 文件下载完毕的回调函数
-	* @param[in] is_ok 是否下载成功
-	* @param[in] res_code 错误码(200代表无错误)
-	* @return void 无返回值
-	*/
-	void DownloadResourceCallback(bool is_ok, int response_code);
-
-	/**
-	* 文件下载进度的回调函数
-	* @param[in] current_upload 已上传大小
-	* @param[in] total_upload	总上传大小
-	* @param[in] current_download	已下载大小
-	* @param[in] total_downnload	总下载大小
-	* @return void 无返回值
-	*/
-	void DownloadResourceProgressCallback(double current_upload, double total_upload, double current_download, double total_downnload);
+	bool IsTransferFileSessionFinalState(TransferFileSessionState state);
 private:
 	std::string		local_path_;
 	std::string		local_path_temp_;
 	std::string		file_name_;
 	int64_t			file_size_ = 0;
-	std::string		file_url_;
+	std::string		file_path_;
 	ui::Box*		msg_file_;
 
 	ui::Button*		file_image_;
@@ -158,18 +133,15 @@ private:
 	ui::VBox*		progress_vertlayout_;
 	ui::Progress*	http_progress_;
 	ui::Label*		http_status_;
+	ui::Button*		file_receive_;
 	ui::Button*		file_saveas_;
-	//ui::Button*		file_save_;
+	ui::Button*		file_reject_;
 	ui::Button*		file_open_;
 	ui::Button*		file_openducu_;
-	ui::Button*		file_pause_;
-	ui::Button*		file_redl_;
-	ui::Button*		file_reup_;
-	bool			loading_;
-	bool			download_fail_;
-	__int64			range_start_;
-	int				download_request_id_;
-	bool			download_cancel_;
+	ui::Button*		file_cancel_;
+
+	std::string		transfer_file_session_id_;
+	TransferFileSessionState transfer_file_session_state_;
 };
 
 }
