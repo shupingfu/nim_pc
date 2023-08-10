@@ -1,0 +1,76 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+
+MESSAGE(STATUS "================== NetEase IM SDK C++ wrapper ==================")
+
+OPTION(BUILD_SHARED_LIBS "Build NeIM SDK C++ wrapper as a shared library." OFF)
+SET(COMPILE_WARNING_AS_ERROR ON)
+SET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/../ CACHE PATH "Default install prefix")
+SET(INSTALL_CPP_WRAPPER ON CACHE BOOL "Exports headers of C++ warpper when called cmake --target INSTALL")
+
+PROJECT(nim_cpp_wrapper)
+SET(CMAKE_CXX_STANDARD 14)
+INCLUDE(GNUInstallDirs)
+
+IF(NOT IOS)
+    ADD_DEFINITIONS(-DNIM_SDK_DLL_IMPORT)
+ENDIF()
+
+IF (MSVC)
+    ADD_DEFINITIONS(
+        -DUNICODE
+        -D_UNICODE
+        -DNOMINMAX
+        -DWIN32_LEAN_AND_MEAN
+        -DPSAPI_VERSION=1)
+ENDIF ()
+
+INCLUDE_DIRECTORIES(
+    # for development directory
+    ${CMAKE_CURRENT_LIST_DIR}/
+    ${CMAKE_CURRENT_LIST_DIR}/..
+    ${CMAKE_CURRENT_LIST_DIR}/../include
+    ${CMAKE_CURRENT_LIST_DIR}/../nim
+    ${CMAKE_CURRENT_LIST_DIR}/../nim/api
+    ${CMAKE_CURRENT_LIST_DIR}/../nim/nim_defines
+    ${CMAKE_CURRENT_LIST_DIR}/../nim_chatroom
+    ${CMAKE_CURRENT_LIST_DIR}/../nim_chatroom/api
+    ${CMAKE_CURRENT_LIST_DIR}/../nim_chatroom/nim_chatroom_defines
+    ${CMAKE_CURRENT_LIST_DIR}/../nim_qchat
+    ${CMAKE_CURRENT_LIST_DIR}/../nim_qchat/api
+    ${CMAKE_CURRENT_LIST_DIR}/../nim_qchat/nim_qchat_defines
+    ${CMAKE_CURRENT_LIST_DIR}/../public_defines
+)
+
+ADD_DEFINITIONS(-DJSON_USE_EXCEPTION=0)
+IF (WIN32)
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_LIST_DIR}/../include)
+    ADD_DEFINITIONS(-DWIN32)
+    ADD_COMPILE_OPTIONS(/wd4573 /wd4251 /wd4273 /wd4819 /bigobj)
+    ADD_COMPILE_OPTIONS("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    ADD_COMPILE_OPTIONS("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+    SET(CMAKE_DEBUG_POSTFIX "_d")
+    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
+    SET(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
+ELSEIF (UNIX)
+    IF (${BUILD_SHARED_LIBS})
+        SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    ENDIF ()
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_LIST_DIR}/../include)
+    LINK_LIBRARIES(dl)
+ENDIF ()
+
+ADD_SUBDIRECTORY(nim_wrapper_util)
+ADD_SUBDIRECTORY(nim_cpp_wrapper)
+ADD_SUBDIRECTORY(nim_chatroom_cpp_wrapper)
+ADD_SUBDIRECTORY(nim_qchat_cpp_wrapper)
+ADD_SUBDIRECTORY(nim_tools_cpp_wrapper)
+
+IF (INSTALL_CPP_WRAPPER)
+    INSTALL(
+        TARGETS nim_wrapper_util nim_cpp_wrapper nim_chatroom_cpp_wrapper nim_qchat_cpp_wrapper nim_tools_cpp_wrapper
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+    INSTALL(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/ DESTINATION include FILES_MATCHING PATTERN "*.h")
+ENDIF ()

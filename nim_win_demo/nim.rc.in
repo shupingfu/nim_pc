@@ -1,0 +1,36 @@
+1 VERSIONINFO
+ FILEVERSION ${GIT_TAG_WITH_COMMA},${GIT_COMMIT_COUNT}
+ PRODUCTVERSION ${GIT_TAG_WITH_COMMA},${GIT_COMMIT_COUNT}
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName", "NetEase"
+            VALUE "FileDescription", "${PROJECT_DESCRIPTION}"
+            VALUE "FileVersion", "${GIT_TAG}.${GIT_COMMIT_COUNT}"
+            VALUE "InternalName", "${TARGET_NAME}.exe"
+            VALUE "LegalCopyright", "Copyright (C) 2020 NetEase. All rights reserved."
+            VALUE "OriginalFilename", "${TARGET_NAME}.exe"
+            VALUE "ProductName", "${TARGET_NAME}"
+            VALUE "ProductVersion", "${GIT_TAG}.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+IDI_ICON ICON "nim.ico"
+
+
