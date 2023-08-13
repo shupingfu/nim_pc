@@ -68,10 +68,10 @@
                   pushedimage="file='cancel2.png' corner='10,10,10,10'" disabledimage="file='cancel0.png' corner='10,10,10,10' fade='128'"/>
         </Box>
         <VBox margin="20,5,20,20" height="auto">
-          <Button name="anonymous_chatroom" margin="0,0,0,0" halign="center" textid="STRID_LOGIN_FORM_ANONYMOUSCHATROOM" cursortype="hand" font="24" normaltextcolor="link_green"/>
+          <Button name="anonymous_chatroom" margin="0,0,0,0" halign="center" textid="STRID_LOGIN_FORM_ANONYMOUSCHATROOM" cursortype="hand" font="24" normaltextcolor="link_green" visible="false" />
           <VBox name="private_settings" height="auto" margin="0,5,0,0">
             <HBox height="auto">
-              <CheckBox class="checkbox_font12" name="chkbox_use_private_enable" textid="STRID_LOGIN_FORM_PRIVATESETTINGS_ENABLE" normaltextcolor="dark2color" selected="false" />
+              <CheckBox class="checkbox_font12" name="chkbox_use_private_enable" textid="STRID_LOGIN_FORM_PRIVATESETTINGS_ENABLE" normaltextcolor="dark2color" selected="false" visible="false" />
               <Control />
               <CheckBox class="checkbox_font12" name="chkbox_private_use_proxy_enable" textid="STRID_LOGIN_FORM_PROXY_ENABLE" normaltextcolor="dark2color" selected="false" visible="false" />
             </HBox>

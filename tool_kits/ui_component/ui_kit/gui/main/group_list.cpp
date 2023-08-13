@@ -28,6 +28,7 @@ GroupList::GroupList(ui::TreeView* group_list) :
 
 	nim::Team::QueryAllMyTeamsInfoAsync(nbase::Bind(&GroupList::OnQueryAllMyTeams, this, std::placeholders::_1, std::placeholders::_2));
 
+	//todo: swire 此处代码还原 待测试是否存在问题
 	//添加创建和搜索群的listitem，位于列表最开头位置
 	ui::TreeNode* create_group_item = (ui::TreeNode*)ui::GlobalManager::CreateBox(L"main/main_create_normal_group_list_item.xml");
 	group_list_->GetRootNode()->AddChildNodeAt(create_group_item, 0);

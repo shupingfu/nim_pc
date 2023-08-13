@@ -201,7 +201,7 @@ void LoginForm::DoRegisterAccount()
 		btn_register_->SetEnabled(false);
 		btn_login_->SetVisible(false);
 
-		password = nim::Tool::GetMd5(password);
+		//password = nim::Tool::GetMd5(password);
 		auto task = ToWeakCallback([this](int res, const std::string& err_msg) {
 			if (res == 200)
 			{

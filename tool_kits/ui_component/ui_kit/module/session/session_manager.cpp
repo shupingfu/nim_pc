@@ -82,6 +82,7 @@ void SessionManager::AddNewMsg(const nim::IMMessage &msg)
 
 	bool create = false;
 	bool msg_notify = true;
+	//todo: swire 这里还原代码，待测试是否存在问题
 	if (nim_comp::RunTimeDataManager::GetInstance()->GetUIStyle() == UIStyle::join)
 	{
 		msg_notify = false;
