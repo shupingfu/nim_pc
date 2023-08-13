@@ -300,7 +300,7 @@ void UIReceiveSysmsgCallback(nim::SysMessage& msg)
 				Json::Value json;
 				if (StringToJson(msg.attach_, json) && json.isObject())
 				{
-					if (json.isMember("id"))
+					if (json.isMember("id")) //todo: swire 此处改动还原，待测试是否存在问题
 					{
 						std::string id = json["id"].asString();
 						if (id == "1")

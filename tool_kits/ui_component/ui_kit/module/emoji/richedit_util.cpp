@@ -10,11 +10,8 @@ namespace nim_comp
 #define MAX_CUSTOM_ITEM_H	150
 #define MAX_CUSTOM_FILE_W	200
 
-#ifdef DEBUG
-#define IMAGE_OLE_NAME	L"image_ole_d.dll"
-#else
 #define IMAGE_OLE_NAME	L"image_ole.dll"
-#endif
+
 
 static HMODULE image_ole_module_ = NULL;
 void FreeImageoleModule()

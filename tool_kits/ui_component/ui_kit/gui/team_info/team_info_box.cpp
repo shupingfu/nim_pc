@@ -235,6 +235,7 @@ bool TeamInfoBox::OnInviteUesrBtnClick(ui::EventArgs *param)
 	ContactSelectForm *contact_select_form = (ContactSelectForm *)WindowsManager::GetInstance()->GetWindow\
 		(ContactSelectForm::kClassName, nbase::UTF8ToUTF16(wnd_id));
 
+	//todo: swire 这里还原代码，待测试是否存在问题
 	if (!contact_select_form)
 	{
 		std::list<UTF8String> exnclude_ids;

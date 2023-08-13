@@ -57,16 +57,16 @@
                     hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png"/>
             <Button name="btn_snapchat" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_SNAPCHAT"
                     forenormalimage="file='../session/btn_snapchat.png' dest='4,4,26,26'" foredisabledimage="file='../session/btn_snapchat_disable.png' dest='4,4,26,26' fade='80'"
-                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png"/>
+                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
             <Button name="btn_file" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_FILE"
                     forenormalimage="file='../session/btn_file.png' dest='4,4,26,26'" foredisabledimage="file='../session/btn_file_disable.png' dest='4,4,26,26' fade='80'"
                     hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png"/>
             <Button name="btn_transfer_file" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_P2P_FILE"
                     forenormalimage="file='../session/btn_transfer_file.png' dest='4,4,26,26'" foredisabledimage="file='../session/btn_transfer_file_disable.png' dest='4,4,26,26' fade='80'"
-                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png"/>
+                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
             <Button name="btn_jsb" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_JSB"
                     forenormalimage="../session/jsb.png" foredisabledimage="file='../session/jsb_disable.png' fade='80'"
-                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png"/>
+                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
             <Button name="btn_clip" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_CLIP"
                     forenormalimage="file='../session/btn_clip.png' dest='5,5,25,25'" foredisabledimage="file='../session/btn_clip_disable.png' dest='5,5,25,25' fade='80'"
                     hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png"/>
@@ -93,7 +93,7 @@
                                 hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
             <Button name="btn_tip" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_NOTIFICATION_MSG"
                     forenormalimage="file='../session/btn_tip.png' dest='5,5,25,25'" foredisabledimage="file='../session/btn_tip_disable.png' dest='5,5,25,25' fade='80'"
-                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png"/>
+                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
             <Option name="btn_capture_audio" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_RECORD_AUDIO" 
                     hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" selectednormalimage="../session/icon_pushed.png" 
                     textid="STRID_SESSION_RECORD_AUDIO_ICON" font="8" normaltextcolor="icongray" disabledtextcolor="iconfadegray" visible="false"/>
@@ -102,7 +102,7 @@
             <CheckBox class="checkbox_font12" name="btn_team_ack_ui" textid="STRID_SESSION_TEAM_ACK_MSG" margin="0,8,0,0" normaltextcolor="dark2color" visible="false"/>
             <Button name="btn_team_ack_msg" valign="center" cursortype="hand" normaltextcolor="link_blue" disabledtextcolor="gray" textid="STRID_SESSION_TEAM_ACK_MSG" visible="false" tooltiptextid="STRID_SESSION_TEAM_ACK_MSG_TIP"/>
             <Control width="10" />
-            <Button name="btn_custom_msg" valign="center" cursortype="hand" normaltextcolor="link_blue" disabledtextcolor="gray" textid="STRID_SESSION_CUSTOM_NOTIFICATION"/>
+            <Button name="btn_custom_msg" valign="center" cursortype="hand" normaltextcolor="link_blue" disabledtextcolor="gray" textid="STRID_SESSION_CUSTOM_NOTIFICATION" visible="false"/>
             <Control width="10" />
             <Button name="btn_msg_record" valign="center" cursortype="hand" normaltextcolor="link_blue" textid="STRID_SESSION_MSG_RECORD"/>
           </HBox>

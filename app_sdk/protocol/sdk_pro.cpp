@@ -3,7 +3,7 @@
 #include "app_sdk_interface.h"
 namespace app_sdk
 {
-	static const std::string cmd_register_account = "/api/createDemoUser";//注册账号
+	static const std::string cmd_register_account = "/api/im/acc/register";//注册账号
 	static const std::string cmd_get_chatroomlist = "/api/chatroom/homeList";//获取聊天室列表
 	static const std::string cmd_get_chatroomaddress = "/api/chatroom/requestAddress";//获取聊天室连接地址
 	void SDK_PRO::ResponseBase::Parse(const std::string& response) {
