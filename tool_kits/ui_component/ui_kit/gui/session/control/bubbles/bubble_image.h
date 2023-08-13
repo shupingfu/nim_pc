@@ -76,5 +76,6 @@ private:
 protected:
 	ui::ButtonBox*	msg_image_;
 	ui::Control*	image_;	
+	virtual void OnMenuCopy();
 };
 }
