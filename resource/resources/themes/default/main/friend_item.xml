@@ -9,6 +9,7 @@
             <VBox margin="10,0,0,0" mouse="false" mousechild="false">
             	<Control />
 	            <Label name="contact" valign="bottom" font="2" mouse="false" width="stretch" />
+                <Label name="ip_info" font="1" mouse="false" width="stretch" text="[127.0.0.1]" normaltextcolor="lightcolor" visible="false"/>
 	            <Label name="online_state" valign="center" margin="0,0,4,0" font="1" mouse="false" width="stretch" normaltextcolor="lightcolor" />
 	            <Control />
 	        </VBox>

@@ -4,6 +4,9 @@
         <MenuElement class="MenuElement" name="mute" width="158">
             <Label class="menu_text" name="mute_text" textid="STRID_SESSION_TEAM_ITEM_MENU_MUTE"/>
         </MenuElement>
+        <MenuElement class="MenuElement" name="remove" width="158">
+			<Label class="menu_text" name="remove_member" textid="STRID_SESSION_TEAM_ITEM_REMOVE_MEMBER"/>
+		</MenuElement>
         <MenuElement class="MenuElement" name="info" width="158">
             <Label class="menu_text" name="mute_info" textid="STRID_SESSION_TEAM_ITEM_MENU_INFO"/>
         </MenuElement>

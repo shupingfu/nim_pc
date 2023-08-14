@@ -32,9 +32,15 @@ public:
 	* @return bool 返回值true: 继续传递控件消息， false: 停止传递控件消息
 	*/
 	bool OnMenu(ui::EventArgs* arg);
+
+    bool OnClick(ui::EventArgs* arg);
+
 private:
-	ui::Box*		msg_finger_;
-	ui::Control*	finger_;
+    ui::ButtonBox* msg_finger_;
+    ui::Control* finger_;
+    ui::Label* user_name_a;
+    ui::Label* user_id_;
+    ui::Label* user_box_name_;
 };
 
 }

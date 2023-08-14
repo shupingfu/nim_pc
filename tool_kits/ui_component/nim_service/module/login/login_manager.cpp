@@ -127,7 +127,7 @@ void LoginManager::ReadDemoLogLevel()
 				SetDemoLogLevel(log_level);
 			}
 			if (auto pchar = root->Attribute("kNIMLimitFileSize")){
-				int file_size = 15;
+				int file_size = 150;
 				nbase::StringToInt((std::string)pchar, &file_size);
 				SetFileSizeLimit(file_size);
 			}

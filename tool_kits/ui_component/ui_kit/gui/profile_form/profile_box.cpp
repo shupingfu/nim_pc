@@ -26,7 +26,7 @@ namespace nim_comp
 
 		head_image_btn = static_cast<ui::Button*>(FindSubControl(L"head_image"));
 		show_name_label = static_cast<ui::Label*>(FindSubControl(L"show_name"));
-		user_id_label = static_cast<ui::Label*>(FindSubControl(L"userid"));
+        user_id_label = static_cast<ui::RichEdit*>(FindSubControl(L"userid"));
 		nickname_label = static_cast<ui::Label*>(FindSubControl(L"nickname"));
 		sex_icon = static_cast<ui::CheckBox*>(FindSubControl(L"sex_icon"));
 
@@ -149,7 +149,7 @@ namespace nim_comp
 			CheckInMuteBlack();
 			add_or_del->SelectItem(user_type == nim::kNIMFriendFlagNormal ? 0 : 1);
 
-			alias_edit->SetLimitText(16);
+			alias_edit->SetLimitText(32);
 			alias_edit->SetSelAllOnFocus(true);
 			alias_edit->AttachSetFocus(nbase::Bind(&ProfileBox::OnAliasEditGetFocus, this, std::placeholders::_1));
 			alias_edit->AttachKillFocus(nbase::Bind(&ProfileBox::OnAliasEditLoseFocus, this, std::placeholders::_1));

@@ -3,7 +3,8 @@
 #include "shared/auto_unregister.h"
 
 //const std::string kAppServerAddress = "http://app.netease.im";
-const std::string kAppServerAddress = "http://43.198.99.177:8000";
+//const std::string kAppServerAddress = "http://43.198.99.177:8000";
+const std::string kAppServerAddress = "http://18.163.189.100:8001";
 
 //好友变化类型
 enum FriendChangeType

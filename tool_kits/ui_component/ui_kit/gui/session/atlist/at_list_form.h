@@ -293,7 +293,7 @@ public:
 private:
     std::string	session_id_;
 	nim::NIMSessionType session_type_;
-
+    std::map<std::string, std::shared_ptr<nim::TeamMemberProperty>> team_member_info_all_list_;
 	std::map<std::string, std::shared_ptr<nim::TeamMemberProperty>> team_member_info_list_;
 	//ui::ListBox				*team_members_container_ = nullptr;
 	ui::VirtualListBox* team_members_container_;

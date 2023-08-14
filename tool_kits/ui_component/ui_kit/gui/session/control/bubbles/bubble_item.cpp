@@ -218,6 +218,36 @@ bool MsgBubbleItem::OnRightClick(ui::EventArgs* param)
 	at_ta->AttachSelect(nbase::Bind(&MsgBubbleItem::OnMenu, this, std::placeholders::_1));
 	at_ta->SetVisible(true);
 
+    if (team_member_getter_ != nullptr) {
+        auto members = team_member_getter_();
+        auto it = members.find(LoginManager::GetInstance()->GetAccount());
+        if (it != members.end()) {
+            auto user_type = it->second->GetUserType();
+            if (user_type == nim::kNIMTeamUserTypeCreator || user_type == nim::kNIMTeamUserTypeManager) {
+                //管理员显示踢人按钮
+                CMenuElementUI* remove_member = (CMenuElementUI*)pMenu->FindControl(L"remove_member");
+                remove_member->AttachSelect(nbase::Bind(&MsgBubbleItem::OnMenu, this, std::placeholders::_1));
+                remove_member->SetVisible(true);
+
+                //显示禁言按钮
+                CMenuElementUI* mute_member = (CMenuElementUI*)pMenu->FindControl(L"mute_member");
+                mute_member->AttachSelect(nbase::Bind(&MsgBubbleItem::OnMenu, this, std::placeholders::_1));
+                mute_member->SetVisible(true);
+                auto mem = members.find(msg_.sender_accid_);
+                if (mem != members.end()) {
+                    bool is_mute_ = mem->second->IsMute();
+                    if (is_mute_) {
+                        ((Button*)(mute_member->FindSubControl(L"menu_text")))
+                            ->SetText(MutiLanSupport::GetInstance()->GetStringViaID(L"STRID_SESSION_TEAM_ITEM_MENU_UNMUTE"));
+                    } else {
+                        ((Button*)(mute_member->FindSubControl(L"menu_text")))
+                            ->SetText(MutiLanSupport::GetInstance()->GetStringViaID(L"STRID_SESSION_TEAM_ITEM_MENU_MUTE"));
+                    }
+                }
+            }
+        }
+    }
+
 	pMenu->Show();
 
 	return true;
@@ -346,7 +376,12 @@ bool MsgBubbleItem::OnMenu( ui::EventArgs* arg )
 	else if (name == L"at_ta")
 	{
 		m_pWindow->SendNotify(this, ui::kEventNotify, BET_MENUATTA, 0);
-	}
+    } else if (name == L"remove_member") {
+        m_pWindow->SendNotify(this, ui::kEventNotify, BET_REMOVE_MEMBER, 0);
+
+    } else if (name == L"mute_member") {
+        m_pWindow->SendNotify(this, ui::kEventNotify, BET_MUTE_MEMBER, 0);
+    }
 
 	return false;
 }

@@ -299,7 +299,7 @@ private:
 private:
 	ui::Button*		head_image_btn = NULL;
 	ui::Label*		show_name_label = NULL;
-	ui::Label*		user_id_label = NULL;
+    ui::RichEdit* user_id_label = NULL;
 	ui::Label*		nickname_label = NULL;
 
 	ui::VBox*		common_info_ = NULL;

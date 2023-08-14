@@ -15,6 +15,8 @@ enum BubbleEventType
 	BET_RECALL,		//撤回
 	BET_MENUATTA,	//右键菜单at
 	BET_UNREAD_COUNT,	//未读列表
+    BET_MUTE_MEMBER,   //禁言
+    BET_REMOVE_MEMBER,  // 踢出本群
 };
 
 namespace nim_comp

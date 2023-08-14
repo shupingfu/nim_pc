@@ -42,6 +42,14 @@ void FriendItem::Init(FriendItemType type, const std::string &accid)
 		nick_name_ = L"";
 	}
 	contact_->SetText(nick_name_);
+    label_ip_info_ = (Label*)this->FindSubControl(L"ip_info");
+    Json::Value ex_json = UserService::GetInstance()->GetUserCustom(accid);
+    if (ex_json.isObject() && ex_json.isMember("loginIp") && ex_json.isMember("ipLocation")) {
+        label_ip_info_->SetVisible(true);
+        std::string value = ex_json["loginIp"].asString();
+        std::string location = ex_json["ipLocation"].asString();
+        label_ip_info_->SetText(nbase::UTF8ToUTF16("[" + value + "]" + "[" + location + "]"));
+    }
 
 	auto head_ctrl = FindSubControl(L"head_image");
 	if (type_ == kFriendItemTypeTeam)

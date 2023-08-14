@@ -94,7 +94,7 @@ void MsgBubbleVideo::PlayVideo()
 #ifdef SUPPORTLOCALPLAYER
 	{
 		auto osversion = shared::tools::GetOSVersion();
-		if (osversion >= 600)
+        if (osversion >= 700)
 		{
 			static LocalVideoPlayerForm* player = nullptr;
 			if (player == nullptr)

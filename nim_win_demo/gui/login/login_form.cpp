@@ -123,7 +123,8 @@ void LoginForm::DoInitUiKit(nim_ui::InitManager::InitMode mode)
 {
 	// InitUiKit接口第一个参数决定是否启用事件订阅模块，默认为false，如果是云信demo app则为true
 	// 如果你的App开启了事件订阅功能，则此参数改为true
-	nim_ui::InitManager::GetInstance()->InitUiKit(app_sdk::AppSDKInterface::IsNimDemoAppKey(app_sdk::AppSDKInterface::GetAppKey()), mode);
+	//nim_ui::InitManager::GetInstance()->InitUiKit(app_sdk::AppSDKInterface::IsNimDemoAppKey(app_sdk::AppSDKInterface::GetAppKey()), mode);
+    nim_ui::InitManager::GetInstance()->InitUiKit(true, mode);
 }
 void LoginForm::DoBeforeLogin()
 {

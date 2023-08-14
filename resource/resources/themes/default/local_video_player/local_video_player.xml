@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <!-- 实际窗口的size是(996+28,670+28) -->
-<Window size="640,520" caption="0,0,0,34" sizebox="4,4,4,4" textid="STDID_LOCAL_VIDEO_PLAYER_CAPTION" >
+<Window size="640,520"  maxInfo="800,600" caption="0,0,0,34" sizebox="4,4,4,4" textid="STDID_LOCAL_VIDEO_PLAYER_CAPTION" >
 	<VBox width="auto" height="auto" bkcolor="bk_local_video_player">	
 		<HBox height="33" padding="20,0,5,0" bkcolor="bk_video_title">
             <Label name="title" width="stretch" valign="center" font="3" normaltextcolor="white" textid="STDID_LOCAL_VIDEO_PLAYER_CAPTION" />
             <Button name="minbtn" margin="10,6,0,0" normalimage="../video/min0.png" hotimage="../video/min1.png" pushedimage="../video/min1.png" disabledimage="../video/min3.png"/>
-            <Box name="sys_menu_box" width="22" height="22" margin="0,6,0,0" enabled="false">
+            <Box name="sys_menu_box" width="22" height="22" margin="0,6,0,0" enabled="true">
                 <Button name="maxbtn" normalimage="../video/max0.png" hotimage="../video/max1.png" pushedimage="../video/max1.png" disabledimage="../video/max3.png" enabled="false" />
-                <Button name="restorebtn" visible="false" normalimage="../video/restore0.png" hotimage="../video/restore0.png" pushedimage="../video/restore0.png" disabledimage="../video/restore3.png" enabled="false" />
+                <Button name="restorebtn" visible="true" normalimage="../video/restore0.png" hotimage="../video/restore0.png" pushedimage="../video/restore0.png" disabledimage="../video/restore3.png" enabled="false" />
             </Box>
             <Button name="closebtn" margin="0,6,0,0" normalimage="../video/close0.png" hotimage="../video/close1.png" pushedimage="../video/close1.png" disabledimage="../video/close3.png"/>
         </HBox>		

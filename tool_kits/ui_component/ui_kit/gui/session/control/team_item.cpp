@@ -136,14 +136,21 @@ namespace nim_comp
 		nim::NIMTeamUserType team_user_type = member_info_.GetUserType();
 
 		CMenuElementUI* mute_item = (CMenuElementUI*)pMenu->FindControl(L"mute");
+        CMenuElementUI* remove_item = (CMenuElementUI*)pMenu->FindControl(L"remove");
 		if (my_team_user_type == nim::kNIMTeamUserTypeNomal
 			|| my_team_user_type == team_user_type
 			|| team_user_type == nim::kNIMTeamUserTypeCreator
 			|| team_user_type == nim::kNIMTeamUserTypeApply
 			|| team_user_type == nim::kNIMTeamUserTypeLocalWaitAccept)
-			mute_item->SetEnabled(false);
+		{
+            mute_item->SetEnabled(false);
+            remove_item->SetEnabled(false);
+        } 
 		else
-			mute_item->SetEnabled(true);
+		{
+            mute_item->SetEnabled(true);
+            remove_item->SetEnabled(true);
+        }
 
 		if (is_mute_)
 		{
@@ -153,6 +160,7 @@ namespace nim_comp
 		{
 			((Label*)(mute_item->FindSubControl(L"mute_text")))->SetText(MutiLanSupport::GetInstance()->GetStringViaID(L"STRID_SESSION_TEAM_ITEM_MENU_MUTE"));
 		}
+        remove_item->AttachSelect(nbase::Bind(&TeamItem::TeamItemMenuItemClick, this, std::placeholders::_1));
 		mute_item->AttachSelect(nbase::Bind(&TeamItem::TeamItemMenuItemClick, this, std::placeholders::_1));
 		((CMenuElementUI*)pMenu->FindControl(L"info"))->AttachSelect(nbase::Bind(&TeamItem::TeamItemMenuItemClick, this, std::placeholders::_1));
 		((CMenuElementUI*)pMenu->FindControl(L"talk"))->AttachSelect(nbase::Bind(&TeamItem::TeamItemMenuItemClick, this, std::placeholders::_1));
@@ -165,7 +173,11 @@ namespace nim_comp
 		if (name == L"mute")
 		{
 			nim::Team::MuteMemberAsync(member_info_.GetTeamID(), member_info_.GetAccountID(), !is_mute_, nbase::Bind(&TeamCallback::OnTeamEventCallback, std::placeholders::_1));
-		}
+        } else if (name == L"remove") {
+            std::list<std::string> uids_list;
+            uids_list.push_back(member_info_.GetAccountID());
+            nim::Team::KickAsync(member_info_.GetTeamID(), uids_list, std::bind(&TeamCallback::OnTeamEventCallback, std::placeholders::_1));
+        }
 		else if (name == L"info")
 		{
 			ProfileForm::ShowProfileForm(member_info_.GetAccountID());
