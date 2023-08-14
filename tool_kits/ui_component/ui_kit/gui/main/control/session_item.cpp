@@ -38,6 +38,7 @@ void SessionItem::InitCtrl() {
     label_online_state_ = (Label*)this->FindSubControl(L"online_state");
     label_atme_ = (Label*)this->FindSubControl(L"at_me_label");
     label_time_ = (Label*)this->FindSubControl(L"label_time");
+    label_ip_info_ = (Label*)this->FindSubControl(L"ip_info");
     box_unread_ = (Box*)this->FindSubControl(L"box_unread");
     label_unread_ = (Label*)this->FindSubControl(L"label_unread");
     head_image_ = (ButtonBox*)this->FindSubControl(L"head_image");

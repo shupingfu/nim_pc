@@ -215,7 +215,8 @@ Json::Value UserService::GetUserCustom(const std::string &id)
 	Json::Value ret;
 	nim::UserNameCard info;
 	GetUserInfo(id, info);	
-	Json::Reader().parse(nim_cpp_wrapper_util::Json::FastWriter().write(info.GetExpand()), ret);
+	//Json::Reader().parse(nim_cpp_wrapper_util::Json::FastWriter().write(info.GetExpand()), ret);
+    Json::Reader().parse(info.GetExpand().asString(), ret);
 	return ret;
 }
 
@@ -322,6 +323,11 @@ void UserService::OnFriendListChangeBySDK(const nim::FriendChangeEvent& change_e
 				msg.type_ = nim::kNIMMessageTypeText;
 				msg.msg_setting_.push_need_badge_ = BoolStatus::BS_TRUE;
 				msg.content_ = "Hello!";
+                // 获取招呼语
+                Json::Value ex_json = UserService::GetInstance()->GetUserCustom(LoginManager::GetInstance()->GetAccount());
+                if (ex_json.isObject() && ex_json.isMember("friendGreeting")) {
+                    msg.content_ = ex_json["friendGreeting"].asString();
+                }
 				nim::MsgLog::WriteMsglogToLocalAsync(user_profile.GetAccId(), msg, true, ToWeakCallback([msg](nim::NIMResCode res_code, const std::string& msg_id) {
 					if (res_code == nim::kNIMResSuccess)
 					{

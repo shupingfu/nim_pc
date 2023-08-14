@@ -96,6 +96,7 @@ public:
 private:
 	ui::Label*		label_online_state_;
 	ui::Label*		contact_;
+    ui::Label*		label_ip_info_;
 
 	FriendItemType	type_;
 	std::string		id_;

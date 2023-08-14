@@ -10,6 +10,38 @@ using namespace ui;
 namespace nim_comp
 {
 
+void SessionBox::HandlerSearchEditChange(UTF8String search_key) {
+    bool has_serch_key = !search_key.empty();
+    if (has_serch_key) {
+        std::list<nim::TeamMemberProperty> search_result{};
+        for (const auto& tm_info : team_member_info_list_) {
+            std::string nick_name_ = tm_info.second->GetNick();
+            std::string account_id_ = tm_info.second->GetAccountID();
+            if (nick_name_.empty()) {
+                nick_name_ = nbase::UTF16ToUTF8(UserService::GetInstance()->GetUserName(account_id_));
+            }
+            // 查找搜索结果
+            if (nick_name_.find(search_key) != std::wstring::npos || account_id_.find(search_key) != std::wstring::npos) {
+                search_result.push_back(*tm_info.second.get());
+            }
+        }
+
+        // 填充数据
+        team_member_sort_list_.clear();
+        if (search_result.size() > 255)
+            team_member_sort_list_.reserve(search_result.size());
+        for (auto& it : search_result) {
+            if (IsTeamMemberType(it.GetUserType())) {
+                team_member_sort_list_.emplace_back(std::make_shared<nim::TeamMemberProperty>(it));
+            }
+        }
+        SortTeamMembers();
+        RefreshMemberList(true);
+    } else {
+        InvokeGetTeamMember();
+    }
+}
+
 void SessionBox::InvokeGetTeamInfo(bool sync_block/* = false*/)
 {
 	if (sync_block)
@@ -435,9 +467,20 @@ void SessionBox::RefreshMsglistShowname(const std::string& uid)
 	int msg_count = msg_list_->GetCount();
 	for (int i = 0; i < msg_count; i++)
 	{
+		// 加后缀，优先展示备注名
+        std::wstring alias = UserService::GetInstance()->GetFriendAlias(uid);
+        show_name = alias.empty() ? show_name : nbase::UTF16ToUTF8(alias);
+        std::string back_name;
+        if (tm_info.GetUserType() == nim::kNIMTeamUserTypeCreator) {
+            back_name = "  群主";
+        }
+        if (tm_info.GetUserType() == nim::kNIMTeamUserTypeManager) {
+            back_name = "  管理员";
+        }
+
 		MsgBubbleItem* bubble_item = dynamic_cast<MsgBubbleItem*>(msg_list_->GetItemAt(i));
 		if (bubble_item && bubble_item->sender_name_->IsVisible() && bubble_item->msg_.sender_accid_ == uid)
-			bubble_item->SetShowName(true, show_name);
+            bubble_item->SetShowName(true, back_name.empty() ? show_name : show_name + back_name);
 
 		if (!bubble_item)
 		{

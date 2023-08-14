@@ -195,6 +195,7 @@ private:
     ui::Label* label_online_state_;
     ui::Label* label_atme_;
     ui::Label* label_time_;
+    ui::Label* label_ip_info_;
     ui::Box* box_unread_;
     ui::Label* label_unread_;
     ui::Box* label_session_item_top_;

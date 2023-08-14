@@ -232,6 +232,8 @@ public:
 #pragma region UI
 public:
 
+	bool SearchEditChange(ui::EventArgs* msg);
+
 	/**
 	* 拦截并处理底层窗体消息
 	* @param[in] uMsg 消息类型
@@ -756,6 +758,11 @@ private:
 	void SendAudio(const std::string& file_path, const std::string& file_ext, long file_size, int audio_duration);
 
 	/**
+        * 发送一条视频消息
+        */
+    void SendVideo(const std::string& file_path, const std::string& file_ext);
+
+	/**
 	* 发送一条阅后自焚消息
 	* @param[in] src 图片路径
 	* @return void	无返回值
@@ -892,6 +899,8 @@ private:
 	*/
 	void SetOnlineState(const EventDataEx &data);
 
+	void SetIpInfo(std::string accid);
+
 	/**
 	* 设置会话盒子的标题
 	* @param[in] name 标题
@@ -961,6 +970,12 @@ private:
 	//群相关的操作
 #pragma region Team
 public:
+
+	 /**
+     * 监听搜索框
+     */
+    void HandlerSearchEditChange(UTF8String search_key);
+
 	/** 
 	* 执行获取群信息的操作	
 	* @return void 无返回值
@@ -1226,6 +1241,7 @@ private:
 	ui::Label*		label_title_;
 	ui::Label*		label_tid_;
 	ui::Label*		label_online_state_;
+    ui::Label*		label_ip_info_;
 	bool			is_header_enable_;	// 因为拖拽效果的需要，现在头像按钮一直可用，通过这个变量记录是否响应头像的单击事件
 	ui::Button*		btn_header_;
 	ui::Button*		btn_invite_;
@@ -1249,6 +1265,8 @@ private:
 	ui::VirtualListBox* member_list_;
 	ui::VBox*		bottom_panel_;
 	ui::CheckBox*	btn_team_ack_ui_;
+    ui::RichEdit*	search_edit_;
+    ui::Button*		btn_clear_input_;
 	std::map < std::string, std::shared_ptr<nim::TeamMemberProperty>> team_member_info_list_;
 
 	std::vector< std::shared_ptr<nim::TeamMemberProperty>> team_member_sort_list_;

@@ -12,5 +12,13 @@
         <MenuElement class="MenuElement" name="at_ta" width="138">
             <Button class="menu_text" text="@Ta"/>
         </MenuElement>
+        
+		<MenuElement class="MenuElement" name="remove_member" width="138" visible="false">
+			<Button class="menu_text" text="踢出本群"/>
+		</MenuElement>
+
+		<MenuElement class="MenuElement" name="mute_member" width="138" visible="false">
+			<Button name="menu_text" class="menu_text" text="禁言"/>
+		</MenuElement>
     </VListBox>
 </Window>

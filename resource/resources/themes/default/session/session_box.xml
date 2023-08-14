@@ -13,6 +13,7 @@
             <Control name="not_disturb" height="15" width="13" margin="10,0,0,0" valign="center" bkimage="../public/icon/not_disturb.png" visible="false"/>
           </HBox>
           <Label name="label_tid" margin="0,5,0,0" mouse="false" normaltextcolor="lightcolor"/>
+          <Label name="ip_info" margin="0,0,0,0" mouse="false" normaltextcolor="lightcolor" text="[127.0.0.1]" visible="false"/>
           <Label name="label_online_state" margin="0,5,0,0" mouse="false" normaltextcolor="lightcolor"/>
         </VBox>
       </HBox>
@@ -65,8 +66,8 @@
                     forenormalimage="file='../session/btn_transfer_file.png' dest='4,4,26,26'" foredisabledimage="file='../session/btn_transfer_file_disable.png' dest='4,4,26,26' fade='80'"
                     hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
             <Button name="btn_jsb" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_JSB"
-                    forenormalimage="../session/jsb.png" foredisabledimage="file='../session/jsb_disable.png' fade='80'"
-                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
+                    forenormalimage="file='../session/rts.png' dest='4,5,25,25'" foredisabledimage="file='../session/rts_disable.png' fade='80' dest='4,5,25,25'"
+                    hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="true"/>
             <Button name="btn_clip" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_CLIP"
                     forenormalimage="file='../session/btn_clip.png' dest='5,5,25,25'" foredisabledimage="file='../session/btn_clip_disable.png' dest='5,5,25,25' fade='80'"
                     hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png"/>
@@ -90,7 +91,7 @@
                                 hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
             <Button name="btn_rts" width="30" height="30" valign="center" margin="5" tooltiptextid="STRID_SESSION_RTS" 
                                 forenormalimage="file='../session/rts.png' dest='4,5,25,25'" foredisabledimage="file='../session/rts_disable.png' dest='4,5,25,25' fade='80'"
-                                hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
+                                hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="true"/>
             <Button name="btn_tip" width="30" height="30" valign="center" margin="4" tooltiptextid="STRID_SESSION_NOTIFICATION_MSG"
                     forenormalimage="file='../session/btn_tip.png' dest='5,5,25,25'" foredisabledimage="file='../session/btn_tip_disable.png' dest='5,5,25,25' fade='80'"
                     hotimage="../session/icon_hover.png" pushedimage="../session/icon_pushed.png" visible="false"/>
@@ -102,7 +103,7 @@
             <CheckBox class="checkbox_font12" name="btn_team_ack_ui" textid="STRID_SESSION_TEAM_ACK_MSG" margin="0,8,0,0" normaltextcolor="dark2color" visible="false"/>
             <Button name="btn_team_ack_msg" valign="center" cursortype="hand" normaltextcolor="link_blue" disabledtextcolor="gray" textid="STRID_SESSION_TEAM_ACK_MSG" visible="false" tooltiptextid="STRID_SESSION_TEAM_ACK_MSG_TIP"/>
             <Control width="10" />
-            <Button name="btn_custom_msg" valign="center" cursortype="hand" normaltextcolor="link_blue" disabledtextcolor="gray" textid="STRID_SESSION_CUSTOM_NOTIFICATION" visible="false"/>
+            <Button name="btn_custom_msg" valign="center" cursortype="hand" normaltextcolor="link_blue" disabledtextcolor="gray" textid="STRID_SESSION_CUSTOM_NOTIFICATION" visible="true"/>
             <Control width="10" />
             <Button name="btn_msg_record" valign="center" cursortype="hand" normaltextcolor="link_blue" textid="STRID_SESSION_MSG_RECORD"/>
           </HBox>
@@ -136,6 +137,11 @@
             <Button name="btn_refresh_member" margin="0,0,10,0" valign="center" cursortype="hand" normaltextcolor="link_blue" textid="STRID_SESSION_REFRESH"/>
           </HBox>
           <Control class="splitline_hor_level1"/>
+          <HBox padding="10,0,10,0" childmargin="5" height="40" >
+			<Control name="search_icon" width="20" height="20" valign="center" margin="10,0,0,0" bkimage="../public/icon/icon_search_gray.png"/>
+			<RichEdit class="simple prompt" name="search_edit" height="auto" margin="1,1,0,0" valign="center" font="2" normaltextcolor="black" prompttextid="STRID_MIANWINDOW_SEARCH_GROUP_EDIT_PROMPT"/>
+          </HBox>
+		  <Control class="splitline_hor_level1"/>
           <VirtualListBox class="list" name="member_list" vscrollbar="true" hscrollbar="false" vscrollunit="50"/>
         </VBox>
 

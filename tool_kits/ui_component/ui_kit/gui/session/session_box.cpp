@@ -88,7 +88,7 @@ namespace nim_comp
         label_title_ = (Label*)FindSubControl(L"label_title");
         label_tid_ = (Label*)FindSubControl(L"label_tid");
         label_online_state_ = (Label*)FindSubControl(L"label_online_state");
-
+        label_ip_info_ = (Label*)FindSubControl(L"ip_info");
         btn_header_ = (Button*)FindSubControl(L"btn_header");
         btn_header_->AttachClick(nbase::Bind(&SessionBox::OnBtnHeaderClick, this, std::placeholders::_1));
 
@@ -143,6 +143,8 @@ namespace nim_comp
         member_list_->SetElementHeight(ui::DpiManager::GetInstance()->ScaleInt(kRoomMemberItemHeight));
         member_list_->SetDataProvider(this);
         member_list_->InitElement(30);
+        search_edit_ = (RichEdit*)(FindSubControl(L"search_edit"));
+        search_edit_->AttachTextChange(nbase::Bind(&SessionBox::SearchEditChange, this, std::placeholders::_1));
         bottom_panel_ = (VBox*)FindSubControl(L"bottom_panel");
 
         ITextServices * text_services = input_edit_->GetTextServices();
@@ -544,12 +546,31 @@ namespace nim_comp
         else
         {
             auto iter = team_member_info_list_.find(msg.sender_accid_);
+            std::wstring alias = UserService::GetInstance()->GetFriendAlias(msg.sender_accid_);
+            std::string back_name;
+            if (iter->second->GetUserType() == nim::kNIMTeamUserTypeCreator || iter->second->GetUserType() == nim::kNIMTeamUserTypeManager) {
+                if(iter->second->GetUserType() == nim::kNIMTeamUserTypeManager)
+                    back_name = "  管理员";
+                else
+                    back_name = "  群主";
+                //item->SetBorderColor(L"link_red");
+                //item->SetBorderSize(1);
+                item->SetStateTextColor(ControlStateType::kControlStateNormal, L"link_red");
+            }
+
+            std::string show_name = nbase::UTF16ToUTF8(UserService::GetInstance()->GetUserName(msg.sender_accid_));
             if (iter != team_member_info_list_.cend() && !iter->second->GetNick().empty())
-                item->SetShowName(true, iter->second->GetNick()); //显示群名片
+            {
+                if (!alias.empty() && !show_name.empty()) {
+                    item->SetShowName(true, back_name.empty() ? show_name : show_name + back_name);
+                } else {
+                    item->SetShowName(true, back_name.empty() ? iter->second->GetNick() : iter->second->GetNick() + back_name);  //显示群名片
+                }
+            }
             else
             {
                 std::string show_name = nbase::UTF16ToUTF8(UserService::GetInstance()->GetUserName(msg.sender_accid_));
-                item->SetShowName(true, show_name); //显示备注名或昵称
+                item->SetShowName(true, back_name.empty() ? show_name : show_name + back_name);  //显示备注名或昵称
             }
         }
 
@@ -1074,6 +1095,9 @@ namespace nim_comp
             for (auto it = uid_at_someone_.begin(); it != uid_at_someone_.end(); ++it)
             {
                 std::string nick_name = it->first;
+                if (nick_name == "所有人") {
+                    continue;
+                }
                 std::string at_str = "@";
                 at_str.append(nick_name);
                 at_str.append(" ");
@@ -1094,7 +1118,7 @@ namespace nim_comp
                 }
             }
 
-            if (!msg.msg_setting_.force_push_ids_list_.empty())
+            //if (!msg.msg_setting_.force_push_ids_list_.empty())
             {
                 msg.msg_setting_.is_force_push_ = BS_TRUE;
                 msg.msg_setting_.force_push_content_ = text;
@@ -1143,6 +1167,29 @@ namespace nim_comp
         AddSendingMsg(msg);
         nim::Talk::SendMsg(json_msg);
     }
+
+void SessionBox::SendVideo(const std::string& file_path, const std::string& file_ext) {
+    std::wstring wfile_path = nbase::UTF8ToUTF16(file_path);
+    if (!nbase::FilePathIsExist(wfile_path, false))
+        return;
+
+    nim::IMMessage msg;
+    PackageMsg(msg);
+    msg.type_ = nim::kNIMMessageTypeVideo;
+    msg.local_res_path_ = file_path;
+
+    nim::IMVideo video;
+    video.md5_ = GetFileMD5(wfile_path /*token_list.back()*/);
+    video.file_extension_ = file_ext;
+    video.size_ = nbase::GetFileSize(nbase::UTF8ToUTF16(file_path));
+    msg.attach_ = video.ToJsonString();
+
+    AddSendingMsg(msg);
+    std::string json_msg = nim::Talk::CreateVideoMessage(msg.receiver_accid_, msg.session_type_, msg.client_msg_id_, video, msg.local_res_path_,
+                                                            nim::MessageSetting(), msg.timetag_);
+    nim::Talk::SendMsg(json_msg);
+}
+
 
     void SessionBox::SendImage(const std::wstring &src)
     {
@@ -1737,7 +1784,7 @@ namespace nim_comp
                     data.online_client_.online_client_type_.insert(nim::kNIMClientTypePCWindows);
                 SetOnlineState(data);
             }
-
+            SetIpInfo(session_id_);
             btn_invite_->SetVisible(true);
             label_tid_->SetVisible(false);
             if (IsFileTransPhone())
@@ -1750,6 +1797,16 @@ namespace nim_comp
 
         SetTitleName(name);
         SetHeaderPhoto(photo);
+    }
+
+    void SessionBox::SetIpInfo(std::string accid) {
+        Json::Value ex_json = UserService::GetInstance()->GetUserCustom(accid);
+        if (ex_json.isObject() && ex_json.isMember("loginIp") && ex_json.isMember("ipLocation")) {
+            std::string value = ex_json["loginIp"].asString();
+            std::string location = ex_json["ipLocation"].asString();
+            label_ip_info_->SetText(nbase::UTF8ToUTF16("[" + value + "]" + "[" + location + "]"));
+        }
+        label_ip_info_->SetVisible(true);
     }
 
     void SessionBox::OnRelink(const Json::Value &json)
@@ -1861,7 +1918,7 @@ namespace nim_comp
             {
                 auto iter = team_member_info_list_.find(info.GetAccId());
                 if (iter != team_member_info_list_.cend() && !iter->second->GetNick().empty()) //设置了群名片，不更新
-                    refresh_show_name = false;
+                    refresh_show_name = true;
             }
 
             if (refresh_icon)

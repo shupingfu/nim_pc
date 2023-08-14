@@ -22,6 +22,7 @@
 #include "gui/session/unread_form.h"
 #include "av_kit/gui/video/multi_video_form.h"
 #include "shared/ui/toast/toast.h"
+#include "gui/team_info/member_manager.h"
 
 using namespace ui;
 
@@ -97,6 +98,12 @@ LRESULT SessionBox::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 	}
 
 	return 0;
+}
+
+bool SessionBox::SearchEditChange(ui::EventArgs* msg) {
+    UTF8String search_key = search_edit_->GetUTF8Text();
+    HandlerSearchEditChange(search_key);
+    return true;
 }
 
 void SessionBox::OnEsc(BOOL &bHandled)
@@ -324,7 +331,37 @@ bool SessionBox::Notify(ui::EventArgs* param)
 			show_text.append(L" ");
 
 			input_edit_->ReplaceSel(show_text, false);
-		}
+        }
+		else if (param->wParam == BET_REMOVE_MEMBER) {
+            AtSomeone rm;
+            rm.is_robot_ = md.type_ == nim::kNIMMessageTypeRobot;
+            rm.uid_ = item->GetSenderId();
+
+            // 不能踢出管理员或者群主
+            auto i = team_member_info_list_.find(rm.uid_);
+            auto user_type = i->second->GetUserType();
+            if (user_type == nim::kNIMTeamUserTypeCreator || user_type == nim::kNIMTeamUserTypeManager) {
+                shared::Toast::ShowToast(L"无法踢出群主或者管理员!", 5000, this->GetWindow()->GetHWND());
+                return true;
+            }
+
+            std::list<std::string> uids_list;
+            uids_list.push_back(rm.uid_);
+            nim::Team::KickAsync(session_id_, uids_list, std::bind(&TeamCallback::OnTeamEventCallback, std::placeholders::_1));
+            // MemberManagerForm* member_manager_form =
+            //                (MemberManagerForm*)WindowsManager::GetInstance()->GetWindow(MemberManagerForm::kClassName,
+            //                nbase::UTF8ToUTF16(rm.uid_));
+            // if (member_manager_form)
+            //    member_manager_form->Close();
+        } else if (param->wParam == BET_MUTE_MEMBER) {
+            AtSomeone rm;
+            rm.is_robot_ = md.type_ == nim::kNIMMessageTypeRobot;
+            rm.uid_ = item->GetSenderId();
+            auto member_info_ = team_member_info_list_.find(rm.uid_)->second;
+
+            nim::Team::MuteMemberAsync(member_info_->GetTeamID(), member_info_->GetAccountID(), !member_info_->IsMute(),
+                                        nbase::Bind(&TeamCallback::OnTeamEventCallback, std::placeholders::_1));
+        }
 	}
 	else if (param->Type == ui::kEventTextChange)
 	{
@@ -636,7 +673,7 @@ void SessionBox::OnBtnSend()
 void SessionBox::OnBtnImage(bool is_snapchat)
 {
 	std::wstring file_type = ui::MutiLanSupport::GetInstance()->GetStringViaID(L"STRID_SESSION_PIC_FILE");
-	LPCTSTR filter = L"*.jpg;*.jpeg;*.png;*.bmp";
+    LPCTSTR filter = L"*.jpg;*.jpeg;*.png;*.bmp;*.mp4";
 	std::wstring text = nbase::StringPrintf(L"%s(%s)", file_type.c_str(), filter);
 	std::map<LPCTSTR, LPCTSTR> filters;
 	filters[text.c_str()] = filter;
@@ -660,6 +697,11 @@ void SessionBox::OnImageSelected(bool is_snapchat, BOOL ret, std::wstring file_p
 		std::wstring file_ext;
 		nbase::FilePathExtension(file_path, file_ext);
 		nbase::LowerString(file_ext);
+        // 发送视频
+        if (file_ext == L".mp4") {
+            SendVideo(nbase::UTF16ToUTF8(file_path), nbase::UTF16ToUTF8(file_ext));
+            return;
+        }
 		if (file_ext != L".jpg" && file_ext != L".jpeg" && file_ext != L".png" && file_ext != L".bmp")
 			return;
 
@@ -709,14 +751,40 @@ void SessionBox::OnFileSelected(BOOL ret, std::wstring file_path)
 
 void SessionBox::OnBtnJsb()
 {
-	int jsb = (rand() % 3 + rand() % 4 + rand() % 5) % 3 + 1;
+    nim_comp::ContactSelectForm* contact_select_form = (nim_comp::ContactSelectForm*)nim_comp::WindowsManager::GetInstance()->GetWindow(
+        nim_comp::ContactSelectForm::kClassName, nbase::UTF8ToUTF16(nim_comp::ContactSelectForm::kCreateGroup));
+    auto cb = ToWeakCallback([this](const std::list<std::string>& friend_list, const std::list<std::string>& team_list) {
+        if (friend_list.empty()) {
+            ShowMsgBox(NULL, MsgboxCallback(), L"STRID_MAINWINDOW_PLEASE_INVITE_FRIEND");
+            return;
+        }
 
-	Json::Value json;
-	Json::FastWriter writer;
-	json["type"] = CustomMsgType_Jsb;
-	json["data"]["value"] = jsb;
+        UTF16String user_names;
+        auto it = friend_list.cbegin();
+        for (int i = 0; it != friend_list.cend() && i < 2; it++, i++) {
+            /*user_names += nim_ui::UserManager::GetInstance()->GetUserName(*it, false) + L";";
+            user_names += nim_ui::UserManager::GetInstance()->GetUserName(
+                it == friend_list.end() ? nim_ui::LoginManager::GetInstance()->GetAccount() : *it, false);*/
 
-	SendJsb(writer.write(json));
+            int jsb = (rand() % 3 + rand() % 4 + rand() % 5) % 3 + 1;
+            Json::Value json;
+            Json::FastWriter writer;
+            json["type"] = CustomMsgType_Jsb;
+            json["data"]["value"] = jsb;
+            json["data"]["uid"] = *it;
+            json["data"]["username"] = nbase::UTF16ToUTF8(UserService::GetInstance()->GetUserName(*it, false));
+            // json["data"]["photo"] = nbase::UTF16ToUTF8(PhotoService::GetInstance()->GetUserPhoto(*it));
+
+            SendJsb(writer.write(json));
+        }
+
+        // nim::TeamInfo tinfo;
+        // tinfo.SetType(nim::kNIMTeamTypeNormal);
+        // tinfo.SetName(nbase::UTF16ToUTF8(user_names));
+    });
+    contact_select_form = new nim_comp::ContactSelectForm(nim_comp::ContactSelectForm::kCreateGroup, std::list<UTF8String>(), cb);
+    contact_select_form->Create(NULL, L"", UI_WNDSTYLE_FRAME & ~WS_MAXIMIZEBOX, 0L);
+    contact_select_form->CenterWindow();
 }
 
 void SessionBox::OnBtnCaptureAudio()

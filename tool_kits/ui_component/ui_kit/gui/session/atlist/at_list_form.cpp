@@ -70,6 +70,7 @@ void AtlistForm::InitWindow()
 void AtlistForm::InitTeamMembers(const std::map<std::string, std::shared_ptr<nim::TeamMemberProperty>>& team_member_info_list)
 {
 	team_member_info_list_ = team_member_info_list;
+    team_member_info_all_list_ = team_member_info_list;
 	team_member_info_list_.erase(LoginManager::GetInstance()->GetAccount());
 	RefrashShowListData();
 	team_members_container_->RemoveAll();
@@ -514,9 +515,15 @@ void AtlistForm::OnUserInfoChange(const std::list<nim::UserNameCard> &uinfos)
 				}
 				else
 				{
-					item->SetShowName(nick);
-					if (five_item != NULL)
-						five_item->SetShowName(nick);
+                    if (!nick.empty()) {
+                        item->SetShowName(nick);
+                        if (five_item != NULL)
+                            five_item->SetShowName(nick);
+                    } else {
+                        item->SetShowName(card_name);
+                        if (five_item != NULL)
+                            five_item->SetShowName(card_name);
+                    }
 				}
 			}
 			else
@@ -644,7 +651,20 @@ void AtlistForm::RefrashShowListData()
 			item->SetTeamCardName(card_name);
 	};
 	team_member_sort_list_.clear();
-	team_member_sort_list_.reserve(team_member_info_list_.size());	
+	team_member_sort_list_.reserve(team_member_info_list_.size());
+
+    auto i = team_member_info_all_list_.find(LoginManager::GetInstance()->GetAccount());
+    if (i != team_member_info_all_list_.end()) {
+        auto user_type = i->second->GetUserType();
+
+        if (user_type == nim::kNIMTeamUserTypeCreator || user_type == nim::kNIMTeamUserTypeManager) {
+            auto item = std::make_shared<ItemMatcher>();
+            item->uid_ = "所有人";
+            item->SetAliasName(L"所有人");
+            item->SetTeamCardName(L"所有人");
+            team_member_sort_list_.emplace_back(item);
+        }
+    }
 	for (auto it = uid_last_five_.rbegin(); it != uid_last_five_.rend(); it++)
 	{
 		auto member_info_it = team_member_info_list_.find(*it);

@@ -166,7 +166,7 @@ private:
 	bool active_;
 
 	LOG_LEVEL demo_log_level_ = LV_APP;
-	int limit_file_size_ = 15;
+	int limit_file_size_ = 150;
 	bool team_msg_ack_;
 
 	int error_code_ = 200;

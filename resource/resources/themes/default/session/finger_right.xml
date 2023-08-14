@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Window>
+    <!--
     <Box name="msg_finger" width="auto" height="auto" menu="true" mousechild="false" bkimage="file='../session/bubble_right.png' corner='15,15,25,15'">
         <Control name="finger" width="88" height="88" margin="10,5,20,5"/>
     </Box>
+    -->
+	<ButtonBox name="msg_finger" width="200" height="auto" minheight="85" bkimage="file='../session/bubble_right.png' corner='15,15,25,15'" menu="true" cursortype="hand">
+		<VBox width="stretch" height="auto" margin="9,3,3,3" mouse="false">
+			<HBox width="stretch" height="70" mouse="false">
+				<Button name="finger" width="54" height="54" borderround="80,80" margin="12,12,0,10" mouse="false" />
+				<VBox name="fileinfo_vertlayout" width="stretch" height="stretch" margin="10,10,10,8" mouse="false">
+					<Label name="file_info" width="stretch" height="auto" singleline="true" font="3" normaltextcolor="white" mouse="false"/>
+					<Label name="file_info_size" width="stretch" height="auto" singleline="true" font="1" normaltextcolor="white" mouse="false"/>
+					<!--
+                    <VBox name="progress_vertlayout" width="stretch" height="12" margin="0,10,0,0" visible="false" mouse="false">
+						<Progress name="http_progress" width="stretch" height="2" bkcolor="bk_progress_bk" progresscolor="bk_progress_progress" mouse="false"/>
+						<Control height="10" mouse="false"/>
+					</VBox>
+                    -->
+				</VBox>
+			</HBox>
+
+			<HBox height="34" width="stretch" margin="12" mouse="false">
+				<Label name="http_status" width="auto" valign="center" font="1" normaltextcolor="white" mouse="false" text="[用户名片]"/>
+				<!--
+                <Control width="stretch" mouse="false"/>
+				<Button name="file_saveas" halign="right" valign="center" margin="0,0,12,0" cursortype="hand" font="1" normaltextcolor="btn_green" visible="false"/>
+                <Button name="file_open" halign="right" valign="center" margin="0,0,12,0" cursortype="hand" font="1" normaltextcolor="btn_green" visible="false"/>
+				<Button name="file_opendocu" halign="right" valign="center" margin="0,0,12,0" cursortype="hand" font="1" normaltextcolor="btn_green" visible="false"/>
+				<Button name="file_pause" halign="right" valign="center" margin="0,0,12,0" cursortype="hand" font="1" normaltextcolor="btn_green" visible="false"/>
+				<Button name="file_reup" halign="right" valign="center" margin="0,0,12,0" cursortype="hand" font="1" normaltextcolor="btn_green" visible="false"/>
+				<Button name="file_redl" halign="right" valign="center" margin="0,0,12,0" cursortype="hand" font="1" normaltextcolor="btn_green" visible="false"/>
+                -->
+			</HBox>
+		</VBox>
+    </ButtonBox>
 </Window>

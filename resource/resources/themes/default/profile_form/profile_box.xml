@@ -7,12 +7,13 @@
 					<Button name="head_image" width="86" height="86" margin="1,1,1,1" borderround="86,86" mouse="false" cursortype="hand" tooltiptextid="STRID_PROFILE_FORM_MODIFY_HEAD_IMAGE"/>
 					<Control bkimage="../public/headmask/icon_headimage_mask_88x88.png" mouse="false"/>
 				</Box>
-				<VBox width="auto" height="auto" margin="19,0,0,0" valign="center" childmargin="10" mousechild="false">
+				<VBox width="auto" height="auto" margin="19,0,0,0" valign="center" childmargin="10" mousechild="true">
 					<HBox width="auto" height="auto">
 						<Label name="show_name" font="20" maxwidth="225" normaltextcolor="profile_nickname"/>
 						<CheckBox name="sex_icon" valign="center" margin="5,0,0,0" normalimage="../profile_form/icon_man.png" selectednormalimage="../profile_form/icon_woman.png"/>
 					</HBox>
-					<Label name="userid" font="2" normaltextcolor="profile_account"/>
+					<RichEdit class="simple prompt edit_attrib" name="userid" font="2" normaltextcolor="profile_account" menu="true" readonly="true" visible="true" bordersize="0" padding="0,0,0,0"/>
+
 					<Label name="nickname" font="2" normaltextcolor="profile_account" visible="false"/>
 				</VBox>
 			</HBox>

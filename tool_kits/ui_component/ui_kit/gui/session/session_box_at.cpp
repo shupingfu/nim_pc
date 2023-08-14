@@ -8,7 +8,7 @@
 using namespace ui;
 namespace
 {
-	const int kMaxRecordLastPeople = 5; //最多记录5个最近发言的人
+	const int kMaxRecordLastPeople = 6; //最多记录6个最近发言的人
 }
 
 namespace nim_comp

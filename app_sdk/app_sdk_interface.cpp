@@ -23,7 +23,8 @@ const std::map<std::string, std::tuple<std::string, NimServerConfType>> key_use_
     {nim::kNIMMockUA, std::make_tuple(nim::kNIMMockUA, NimServerConfType::NimServerConfType_String)},
     {nim::kNIMMockRefer, std::make_tuple(nim::kNIMMockRefer, NimServerConfType::NimServerConfType_String)},
 };
-const std::string AppSDKInterface::kAppKey = "3fdfb45d9cfe5cfbdb41f8eb8672e3cf"; // 雅宝通
+//const std::string AppSDKInterface::kAppKey = "3fdfb45d9cfe5cfbdb41f8eb8672e3cf"; // 雅宝通
+const std::string AppSDKInterface::kAppKey = "5c9649305cc80a2832fda131171eff23";
 const std::string AppSDKInterface::kAppHost = "http://app.netease.im";
 
 std::map<std::string, std::string> AppSDKInterface::config_map_;
