@@ -1,3 +1,4 @@
+#include <locale>
 #include "include/cef_client.h"
 #include "app/client_app.h"
 

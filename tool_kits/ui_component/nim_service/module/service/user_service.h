@@ -4,7 +4,7 @@
 
 //const std::string kAppServerAddress = "http://app.netease.im";
 //const std::string kAppServerAddress = "http://43.198.99.177:8000";
-const std::string kAppServerAddress = "http://18.163.189.100:8001";
+const std::string kAppServerAddress = "http://43.198.108.161:8000";
 
 //好友变化类型
 enum FriendChangeType

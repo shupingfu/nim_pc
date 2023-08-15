@@ -118,7 +118,7 @@ private:
 	bool               is_max_window_ = false;
 	bool               playing_ = false;
 	long long          total_duration_ = 0; //总时长，可用于区分是直播开始点播
-	float              volume_ = 20.0f;
+	float              volume_ = 1.0f;
 	bool               muted_ = false;
 	PlayerState        state_ = PlayerStateStopped;
 	WeakCallbackFlag   refresh_time_flag_;

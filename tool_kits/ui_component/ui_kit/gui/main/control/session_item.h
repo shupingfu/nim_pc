@@ -188,6 +188,8 @@ private:
      */
     bool OnHeadImageClicked(bool is_robot, ui::EventArgs* arg);
 
+    void SetIpInfo(std::string accid);
+
 private:
     ui::ButtonBox* head_image_;
     ui::Label* label_name_;
