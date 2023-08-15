@@ -114,6 +114,7 @@ void SessionItem::InitMsg(const std::shared_ptr<nim::SessionData>& msg) {
             SetOnlineState(data);
         }
         SetMute(nim_comp::MuteBlackService::GetInstance()->IsInMuteList(msg_->id_));
+        SetIpInfo(msg_->id_);
     } else {
         HideOnlineState();
         SetMute(nim_comp::SessionManager::GetInstance()->IsTeamMsgMuteShown(msg_->id_, -1));
@@ -126,6 +127,16 @@ void SessionItem::SetOnlineSessionType(bool is_online_session) {
 
 void SessionItem::SetMute(bool mute) {
     FindSubControl(L"not_disturb")->SetVisible(mute);
+}
+
+void SessionItem::SetIpInfo(std::string accid) {
+    label_ip_info_->SetVisible(true);
+    Json::Value ex_json = UserService::GetInstance()->GetUserCustom(accid);
+    if (ex_json.isObject() && ex_json.isMember("loginIp") && ex_json.isMember("ipLocation")) {
+        std::string value = ex_json["loginIp"].asString();
+        std::string location = ex_json["ipLocation"].asString();
+        label_ip_info_->SetText(nbase::UTF8ToUTF16("[" + value + "]" + "[" + location + "]"));
+    }
 }
 
 void SessionItem::InitUserProfile() {

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include <shlwapi.h>
+#include <iostream>
 
 namespace ui 
 {

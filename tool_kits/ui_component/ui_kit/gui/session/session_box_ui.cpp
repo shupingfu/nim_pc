@@ -673,7 +673,7 @@ void SessionBox::OnBtnSend()
 void SessionBox::OnBtnImage(bool is_snapchat)
 {
 	std::wstring file_type = ui::MutiLanSupport::GetInstance()->GetStringViaID(L"STRID_SESSION_PIC_FILE");
-    LPCTSTR filter = L"*.jpg;*.jpeg;*.png;*.bmp;*.mp4";
+	LPCTSTR filter = L"*.jpg;*.jpeg;*.png;*.bmp;*.mp4";
 	std::wstring text = nbase::StringPrintf(L"%s(%s)", file_type.c_str(), filter);
 	std::map<LPCTSTR, LPCTSTR> filters;
 	filters[text.c_str()] = filter;
@@ -697,11 +697,13 @@ void SessionBox::OnImageSelected(bool is_snapchat, BOOL ret, std::wstring file_p
 		std::wstring file_ext;
 		nbase::FilePathExtension(file_path, file_ext);
 		nbase::LowerString(file_ext);
-        // 发送视频
-        if (file_ext == L".mp4") {
-            SendVideo(nbase::UTF16ToUTF8(file_path), nbase::UTF16ToUTF8(file_ext));
-            return;
-        }
+
+		// 发送视频
+		if (file_ext == L".mp4") {
+			SendVideo( nbase::UTF16ToUTF8(file_path), nbase::UTF16ToUTF8(file_ext));
+			return;
+		}
+
 		if (file_ext != L".jpg" && file_ext != L".jpeg" && file_ext != L".png" && file_ext != L".bmp")
 			return;
 

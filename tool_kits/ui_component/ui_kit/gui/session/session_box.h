@@ -758,9 +758,10 @@ private:
 	void SendAudio(const std::string& file_path, const std::string& file_ext, long file_size, int audio_duration);
 
 	/**
-        * 发送一条视频消息
-        */
-    void SendVideo(const std::string& file_path, const std::string& file_ext);
+	* 发送一条视频消息
+	*/
+	void SendVideo(const std::string& file_path, const std::string& file_ext);
+
 
 	/**
 	* 发送一条阅后自焚消息
@@ -899,9 +900,10 @@ private:
 	*/
 	void SetOnlineState(const EventDataEx &data);
 
+	
 	void SetIpInfo(std::string accid);
 
-	/**
+        /**
 	* 设置会话盒子的标题
 	* @param[in] name 标题
 	* @return void	无返回值

@@ -1,6 +1,6 @@
 #pragma once
 //#include "util.h"
-
+#include <string>
 
 /*  结合c#与cout的log
  *  示例：

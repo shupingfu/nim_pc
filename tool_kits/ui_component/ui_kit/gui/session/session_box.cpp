@@ -97,13 +97,13 @@ namespace nim_comp
         btn_invite_->AttachClick(nbase::Bind(&SessionBox::OnBtnInvite, this, std::placeholders::_1));
 
 #if defined(USING_RTC_G2)
-        Button* btn_audio_g2;// = (Button*)FindSubControl(L"btn_audio_g2");
-        Button* btn_video_g2;// = (Button*)FindSubControl(L"btn_video_g2");
+        Button* btn_audio_g2 = (Button*)FindSubControl(L"btn_audio_g2");
+        Button* btn_video_g2 = (Button*)FindSubControl(L"btn_video_g2");
 #else
         btn_capture_audio_ = (Option*)FindSubControl(L"btn_capture_audio");
-        Button* btn_audio;  // = (Button*)FindSubControl(L"btn_audio");
-        Button* btn_video;  // = (Button*)FindSubControl(L"btn_video");
-        Button* btn_rts;    // = (Button*)FindSubControl(L"btn_rts");
+        Button* btn_audio = (Button*)FindSubControl(L"btn_audio");
+        Button* btn_video = (Button*)FindSubControl(L"btn_video");
+        Button* btn_rts = (Button*)FindSubControl(L"btn_rts");
 #endif
 		
 		if (session_type_ == nim::kNIMSessionTypeP2P && !IsFileTransPhone())

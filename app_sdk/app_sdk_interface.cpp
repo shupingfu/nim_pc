@@ -24,7 +24,7 @@ const std::map<std::string, std::tuple<std::string, NimServerConfType>> key_use_
     {nim::kNIMMockRefer, std::make_tuple(nim::kNIMMockRefer, NimServerConfType::NimServerConfType_String)},
 };
 //const std::string AppSDKInterface::kAppKey = "3fdfb45d9cfe5cfbdb41f8eb8672e3cf"; // 雅宝通
-const std::string AppSDKInterface::kAppKey = "5c9649305cc80a2832fda131171eff23";
+const std::string AppSDKInterface::kAppKey = "385e17363659a87fb759ccc151341469";
 const std::string AppSDKInterface::kAppHost = "http://app.netease.im";
 
 std::map<std::string, std::string> AppSDKInterface::config_map_;
@@ -91,7 +91,7 @@ std::string AppSDKInterface::GetAppKey() {
 bool AppSDKInterface::IsNimDemoAppKey(const std::string& appkey) {
     static const std::string kNimTestAppKey = "fe416640c8e8a72734219e1847ad2547";
     static const std::string kNimSGAppKey = "b88e33e57c0f2a427e19db2b8461cb55";
-    if (appkey.compare(kNimTestAppKey) == 0 || appkey.compare(kAppKey) == 0 || appkey.compare(kNimSGAppKey) == 0)
+    if (appkey.compare(kNimTestAppKey) == 0 || appkey.compare(kNimSGAppKey) == 0)
         return true;
     return false;
 }
