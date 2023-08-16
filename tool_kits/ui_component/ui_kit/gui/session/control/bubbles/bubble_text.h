@@ -28,6 +28,8 @@ public:
 	*/
 	virtual void InitInfo(const nim::IMMessage &msg);
 
+	virtual void SetTextColor(const std::wstring& dwTextColor);
+
 protected:
 	/**
 	* 设置此消息项显示的文本
