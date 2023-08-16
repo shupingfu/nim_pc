@@ -190,8 +190,20 @@ public:
 	* @return void 无返回值
 	*/
 	virtual void SaveBubbleStatus() { }
+    
+	/**
+	* 设置text颜色
+	* @return void 无返回值
+	*/
+	virtual void SetTextColor(const std::wstring& dwTextColor) {}
 
-public:
+	/**
+    * 设置Name颜色
+    * @return void 无返回值
+    */
+	virtual void SetShowNameColor(const std::wstring& dwTextColor) { sender_name_->SetAttribute(L"normaltextcolor", dwTextColor);}
+
+    public:
 	void SetUnreadCount(int count);
 	/**
 	* 设置获取群成员接口，当是群消息时可用 

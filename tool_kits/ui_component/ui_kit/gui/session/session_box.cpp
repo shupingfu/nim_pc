@@ -553,9 +553,7 @@ namespace nim_comp
                     back_name = "  管理员";
                 else
                     back_name = "  群主";
-                //item->SetBorderColor(L"link_red");
-                //item->SetBorderSize(1);
-                item->SetStateTextColor(ControlStateType::kControlStateNormal, L"link_red");
+                item->SetShowNameColor(L"link_red");
             }
 
             std::string show_name = nbase::UTF16ToUTF8(UserService::GetInstance()->GetUserName(msg.sender_accid_));

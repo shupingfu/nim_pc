@@ -66,6 +66,10 @@ void MsgBubbleText::InitInfo(const nim::IMMessage &msg)
 	SetMsgText(str);
 }
 
+void MsgBubbleText::SetTextColor(const std::wstring& dwTextColor) {
+    text_->SetTextColor(dwTextColor);
+}
+
 void MsgBubbleText::SetMsgText( const std::wstring &str )
 {
 	if(str.empty())
