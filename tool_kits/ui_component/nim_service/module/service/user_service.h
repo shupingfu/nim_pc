@@ -3,8 +3,6 @@
 #include "shared/auto_unregister.h"
 
 //const std::string kAppServerAddress = "http://app.netease.im";
-//const std::string kAppServerAddress = "http://43.198.99.177:8000";
-const std::string kAppServerAddress = "http://43.198.108.161:8000";
 
 //好友变化类型
 enum FriendChangeType
@@ -28,8 +26,8 @@ typedef std::function<void(const std::list<nim::UserNameCard>&)> OnUserInfoChang
 typedef std::function<void(const std::list<nim::UserNameCard>&)> OnGetUserInfoCallback;
 typedef std::function<void(nim::NIMResCode res)> OnUpdateUserInfoCallback;
 
-const static char* g_AppServerAddress = "kAppServerAddress";
-const static char* g_AppKey = "kAppKey";
+//const static char* g_AppServerAddress = "kAppServerAddress";
+//const static char* g_AppKey = "kAppKey";
 
 /**
 * 获取连接服务器的某一个配置信息
