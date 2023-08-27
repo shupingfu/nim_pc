@@ -188,16 +188,17 @@ void TalkCallback::OnQueryMsgCallback(nim::NIMResCode code, const std::string& q
 		<<query_id <<query_type <<code<< result.source_ << result.count_ << result.msglogs_.size();
 	
 	//QueryMsgAync 返回的消息为逆序排序 反向遍历加入vector
+    const int8_t once_load_cnt = 40; //单次加载消息条数
 	std::vector<nim::IMMessage> vec;
-    int8_t vec_curr=0, vec_cnt = result.msglogs_.size() / 10 +1;
+    int8_t vec_curr = 0, vec_cnt = result.msglogs_.size() / once_load_cnt + 1;
     auto vec_new = new std::vector<nim::IMMessage>[vec_cnt];
 	
     int pushd_msg_cnt = 0;
 	for (auto iter = result.msglogs_.rbegin(); iter != result.msglogs_.rend(); iter++) {
-        if (pushd_msg_cnt == 10)
+		if (pushd_msg_cnt == once_load_cnt)
             vec_curr++;
 		vec_new[vec_curr].push_back(*iter);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); //todo: 测试是否由网络并发下载图片导致拥堵延迟而崩溃
+        std::this_thread::sleep_for(std::chrono::milliseconds(33)); //todo: 测试是否由网络并发下载图片导致拥堵延迟而崩溃
 	}
 
 	SessionBox* session_form = SessionManager::GetInstance()->FindSessionBox(query_id);
