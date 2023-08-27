@@ -393,7 +393,7 @@ void UIReceiveSysmsgCallback(nim::SysMessage& msg)
 
 			std::wstring format = ui::MutiLanSupport::GetInstance()->GetStringViaID(L"STRID_SESSION_RECEIVE_CUSTOM_MSG");
 			std::wstring toast = nbase::StringPrintf(format.c_str(), nbase::UTF8ToUTF16(msg.receiver_accid_).c_str(), nbase::UTF8ToUTF16(msg.sender_accid_).c_str(), nbase::UTF8ToUTF16(show_text).c_str());
-			nim_ui::ShowToast(toast, 5000);
+			//nim_ui::ShowToast(toast, 5000);
 			//UpdateCustomSysmsgUnread(true);
 		}
 
