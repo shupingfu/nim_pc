@@ -184,18 +184,36 @@ void TalkCallback::OnSendCustomSysmsgCallback(const nim::SendMessageArc& arc)
 
 void TalkCallback::OnQueryMsgCallback(nim::NIMResCode code, const std::string& query_id, nim::NIMSessionType query_type, const nim::QueryMsglogResult& result)
 {
-	QLOG_APP(L"query end: id={0} type={1} code={2} source={3}") <<query_id <<query_type <<code<< result.source_;
+	QLOG_APP(L"query end: id={0} type={1} code={2} source={3} result.count={4} result.msglogs.size={5}") 
+		<<query_id <<query_type <<code<< result.source_ << result.count_ << result.msglogs_.size();
 	
 	//QueryMsgAync 返回的消息为逆序排序 反向遍历加入vector
 	std::vector<nim::IMMessage> vec;
-	vec.reserve(result.msglogs_.size());
+    int8_t vec_curr=0, vec_cnt = result.msglogs_.size() / 10 +1;
+    auto vec_new = new std::vector<nim::IMMessage>[vec_cnt];
+	
+    int pushd_msg_cnt = 0;
 	for (auto iter = result.msglogs_.rbegin(); iter != result.msglogs_.rend(); iter++) {
-		vec.push_back(*iter);
+        if (pushd_msg_cnt == 10)
+            vec_curr++;
+		vec_new[vec_curr].push_back(*iter);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); //todo: 测试是否由网络并发下载图片导致拥堵延迟而崩溃
 	}
 
 	SessionBox* session_form = SessionManager::GetInstance()->FindSessionBox(query_id);
-	if (session_form)
-		session_form->ShowMsgs(vec);
+    if (session_form) {
+        try {
+//            for (auto& v : *vec_new) {
+//                session_form->ShowMsgs(vec);
+//            }
+            for (vec_curr = 0; vec_curr < vec_cnt; vec_curr++) {
+                session_form->ShowMsgs(vec_new[vec_curr]);
+			}
+		} catch (std::exception& e) {
+            QLOG_ERR(L"session_form->ShowMsgs exception: {1}") << e.what();
+		}
+    }
+    delete []vec_new;
 }
 
 void TalkCallback::OnQuerySessionListCallback(int unread_count, const nim::SessionDataList& session_list)
