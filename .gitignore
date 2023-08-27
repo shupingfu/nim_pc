@@ -3,6 +3,7 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 nim_server.conf
+Output
 
 # NIM Custom
 [Bb]in/*.exe
