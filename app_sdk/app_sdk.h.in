@@ -1,0 +1,7 @@
+#pragma once
+
+#define PROJEDT_BUILD_TIME "@CMKE_BUILD_TIME@"
+
+#define K_APP_KEY "@kAppKey@"
+#define K_APP_SERVER_ADDRESS "@kAppServerAddress@"
+

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "app_sdk.h"
 #include "app_sdk_config_helper.h"
 #include "app_sdk_interface.h"
 #include "base/http/sdk_http_manager.h"
@@ -23,8 +24,8 @@ const std::map<std::string, std::tuple<std::string, NimServerConfType>> key_use_
     {nim::kNIMMockUA, std::make_tuple(nim::kNIMMockUA, NimServerConfType::NimServerConfType_String)},
     {nim::kNIMMockRefer, std::make_tuple(nim::kNIMMockRefer, NimServerConfType::NimServerConfType_String)},
 };
-//const std::string AppSDKInterface::kAppKey = "3fdfb45d9cfe5cfbdb41f8eb8672e3cf"; // 雅宝通
-const std::string AppSDKInterface::kAppKey = "385e17363659a87fb759ccc151341469";
+
+const std::string AppSDKInterface::kAppKey = K_APP_KEY;
 const std::string AppSDKInterface::kAppHost = "http://app.netease.im";
 
 std::map<std::string, std::string> AppSDKInterface::config_map_;

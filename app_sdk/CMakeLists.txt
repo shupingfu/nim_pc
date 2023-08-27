@@ -2,6 +2,18 @@ MESSAGE("############# app_sdk #############")
 
 SET(TARGET_NAME app_sdk)
 
+string(TIMESTAMP CMKE_BUILD_TIME "%Y-%m-%dT%H:%M:%SZ" UTC)
+
+if(NOT kAppKey)
+    message(FATAL_ERROR "Please define kAppKey")
+endif()
+
+if(NOT kAppServerAddress)
+    message(FATAL_ERROR "Please define kAppServerAddress")
+endif()
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/app_sdk.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/app_sdk.h")
+
 PROJECT(${TARGET_NAME})
 
 INCLUDE_DIRECTORIES(

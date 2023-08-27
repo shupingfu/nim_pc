@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "app_sdk.h"
 #include "sdk_pro.h"
 #include "app_sdk_interface.h"
 namespace app_sdk
@@ -84,13 +85,14 @@ namespace app_sdk
 	}
 	std::string SDK_PRO::RegisterAccountRequest::OnGetHost() const
 	{
-		std::string host = __super::OnGetHost();
-		std::string new_host = AppSDKInterface::GetInstance()->GetConfigValue("kAppServerAddress");
-		if (!new_host.empty())
-		{
-			host = new_host;
-		}
-		return host;
+		//std::string host = __super::OnGetHost();
+		//std::string new_host = AppSDKInterface::GetInstance()->GetConfigValue("kAppServerAddress");
+		//if (!new_host.empty())
+		//{
+			//host = new_host;
+		//}
+		//return host;
+        return K_APP_SERVER_ADDRESS;
 	}
 	std::string SDK_PRO::RegisterAccountRequest::OnGetAPI() const
 	{
