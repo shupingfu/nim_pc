@@ -12,7 +12,7 @@ if(NOT kAppServerAddress)
     message(FATAL_ERROR "Please define kAppServerAddress")
 endif()
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/app_sdk.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/app_sdk.h")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/app_sdk.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/app_sdk_generate.h")
 
 PROJECT(${TARGET_NAME})
 
