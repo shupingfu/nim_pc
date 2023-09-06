@@ -33,6 +33,7 @@ namespace nim_comp
 		int						videoQuality;
 		int						reason;
 		std::string				sessionId;
+        std::string				channelName;
 		bool					useRtcSafeMode;
 		GetTokenServiceFunc     tockenServiceFunc;
 		std::map<uint64_t, nertc::NERtcNetworkQualityType> network_quality;

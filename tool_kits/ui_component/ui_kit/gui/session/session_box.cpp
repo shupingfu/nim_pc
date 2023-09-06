@@ -461,7 +461,10 @@ namespace nim_comp
                 }
                 else if (sub_type == CustomMsgType_SnapChat)
                 {
-                    item = new MsgBubbleSnapChat;
+                    //item = new MsgBubbleSnapChat;
+                    
+                    //将G2话单显示成一条普通消息
+                    item = new MsgBubbleText;
                 }
                 else if (sub_type == CustomMsgType_Sticker)
                 {

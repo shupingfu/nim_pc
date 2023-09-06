@@ -847,6 +847,7 @@ void SessionBox::OnEmotionClosed()
 }
 void SessionBox::OnBtnAudioG2()
 {
+    QLOG_APP(L"press audio g2 btn");
 	if (session_type_ == nim::kNIMSessionTypeP2P)
 	{
 		VideoManagerG2::GetInstance()->ShowVideoChatForm(session_id_, false);

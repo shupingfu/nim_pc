@@ -133,6 +133,7 @@ namespace nim_comp
 		void SetAudioMute(std::string	session_id_, bool bMute);
 		VideoSettingFormG2* GetVideoSettingForm();
 		VideoFormG2* GetVideoForm();
+		void SetInvitorInfo(std::string sender_id, std::string session_id, std::string channel_name);
 		//nbase::BusinessActionGatewayImp			gateway_impl_;
 	private:
 		std::shared_ptr<VideoActionDispatcher>	action_dispatcher_;
@@ -149,6 +150,9 @@ namespace nim_comp
 		bool									is_audio_output_enable_;
 		bool									is_sender_;
 		int										video_quality_type_;
+		std::string								sender_id_;
+        std::string								session_id_;
+        std::string								channel_name_;
 // 		std::wstring							cur_video_device_id_;
 // 		std::wstring							cur_audio_input_device_id_;
 // 		std::wstring							cur_audio_output_device_id_;

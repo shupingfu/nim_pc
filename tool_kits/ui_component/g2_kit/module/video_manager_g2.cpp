@@ -175,6 +175,7 @@ namespace nim_comp
 
 	bool VideoManagerG2::ShowVideoChatForm(const std::string& session_id, bool video, bool isSender/* = true*/)
 	{
+		QLOG_APP(L"ShowVideoChatForm session_id:{0}, video:{1}, isSender:{2}") << session_id << video << isSender;
 		SetDeviceOnce();
 
 		video_form_.release();
@@ -234,6 +235,7 @@ namespace nim_comp
 	}
 	bool VideoManagerG2::ShowVideoSetting(bool video/* = true*/)
 	{
+			QLOG_APP(L"ShowVideoSetting video:{1}") << video ;
 		SetDeviceOnce();
 
 		bool ret = setting_form_flag_.expired();
@@ -360,6 +362,7 @@ namespace nim_comp
 		AvChatParams param;
 		nbase::BatpPack bp;
 
+		QLOG_APP(L"EnableAudioDevice enable:{0}  isrecord:{1}")<< enable << isRecord;
 		if (isRecord)
 		{
 			bp.head_.action_name_ = kAvChatMuteLocalAudio;
@@ -508,7 +511,9 @@ namespace nim_comp
 
 	void VideoManagerG2::AcceptInvite()
 	{
+		QLOG_APP(L"accept invite");
 		auto acceptCb = [this](int errCode)->void {
+
 			if (errCode == 200)
 			{
 				video_form_->ShowStatusPage(VideoFormG2::SP_VIDEO);
@@ -525,6 +530,11 @@ namespace nim_comp
 		};
 		nbase::BatpPack bp;
 		AvChatParams params;
+		params.invitorAccid = sender_id_;
+		params.channelName = channel_name_;
+		params.sessionId = session_id_;
+		params.callType = 1;
+			
 		params.optCb = nbase::Bind(acceptCb, std::placeholders::_1);
 		bp.head_.action_name_ = kAvChatAccept;
 		bp.body_.param_ = params;
@@ -535,7 +545,7 @@ namespace nim_comp
 	{
 		QLOG_APP(L"OnCallingCb thread id:{0}");
 		AvChatParams params = nbase::BatpParamCast<AvChatParams>(response.body_.param_);
-		
+		QLOG_APP(L"params appKey:{0}, userId:{1} invitorAccid:{2} sessionId:{3} useRtcSafeMode:{4} deviceId:{5}") << params.appKey << params.userId << params.invitorAccid << params.sessionId << params.useRtcSafeMode << params.deviceId;
 		video_form_->AdjustWindowSize(is_video_mode_);
 		video_form_->CheckTitle();
 		video_form_->ShowStatusPage(VideoFormG2::SP_DIAL);
@@ -544,6 +554,12 @@ namespace nim_comp
 		{
 			setting_form_->StopVideoPreview();
 			setting_form_->StopAudioPreview();
+		} else {
+			std::thread([&]() {
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+				this->AcceptInvite();
+				this->EnableAudioDevice(true, true);
+			}).detach();
 		}
 	}
 
@@ -774,6 +790,14 @@ namespace nim_comp
 		if (video_form_ && !video_form_flag_.expired())
 			return video_form_.get();
 		return nullptr;
+	}
+
+	void VideoManagerG2::SetInvitorInfo(std::string sender_id, std::string session_id, std::string channel_name) {
+		QLOG_APP(L"set invitor info: sender_id:{0}, session_id: {1}, channel_nname :{2}") << sender_id << session_id << channel_name;
+
+		this->sender_id_ = sender_id;
+		this->session_id_ = session_id;
+		this->channel_name_ = channel_name;
 	}
 
 	void QueryToken(int64_t uid, std::function<void(const std::string& token)> onGetToken)
