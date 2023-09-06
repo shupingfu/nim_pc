@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "app_sdk.h"
+#include "app_sdk_generate.h"
 #include "sdk_pro.h"
 #include "app_sdk_interface.h"
 namespace app_sdk

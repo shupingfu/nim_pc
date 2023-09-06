@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "app_sdk.h"
+#include "app_sdk_generate.h"
 #include "app_sdk_config_helper.h"
 #include "app_sdk_interface.h"
 #include "base/http/sdk_http_manager.h"
