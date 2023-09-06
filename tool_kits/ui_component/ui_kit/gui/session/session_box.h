@@ -827,6 +827,7 @@ private:
 
 	void ReSendMsg(nim::IMMessage &msg);
 
+    public:
 	/**
 	* 自动填充nim::IMMessage结构体一些基本的字段，方便发送消息时使用
 	* @param[out] msg 会话消息
@@ -834,6 +835,7 @@ private:
 	*/
 	void PackageMsg(nim::IMMessage &msg);
 
+    private:
 	/**
 	* 检查最后发送的一条消息
 	* @return void	无返回值

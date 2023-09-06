@@ -282,6 +282,7 @@ namespace nim_comp
 	void AvChatBusinessWrapper::accept(const nbase::BatpPack& request)
 	{
 		AvChatParams params = nbase::BatpParamCast<AvChatParams>(request.body_.param_);
+		component.setupInvitirInfo(params.invitorAccid, params.sessionId, params.channelName,1);
 		component.accept(params.optCb);
 	}
 	void AvChatBusinessWrapper::reject(const nbase::BatpPack& request)

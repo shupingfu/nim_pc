@@ -5,7 +5,9 @@
 #include "gui/main/team_event_form.h"
 #include "module/session/session_manager.h"
 #include "session_list.h"
+#include "gui/session/session_box.h"
 #include "ui_kit_base/invoke_safe_callback.h"
+#include "g2_kit/module/video_manager_g2.h"
 
 namespace nim_comp {
 
@@ -501,8 +503,27 @@ void SessionList::OnSessionChangeCallback(nim::NIMResCode rescode, const nim::Se
         assert(0);
         return;
     }
-    QLOG_APP(L"SessionList::OnChangeCallback. command: {0}, uid: {1}, type: {2}, total unread_count: {3}")
-        << data.command_ << data.id_ << data.type_ << total_unread_counts;
+    QLOG_APP(L"SessionList::OnChangeCallback. command: {0}, uid: {1}, type: {2}, total unread_count: {3}, res:{4}, msgtype:{5}")
+        << data.command_ << data.id_ << data.type_ << total_unread_counts << rescode<< data.msg_type_;
+    if (nim::NIMMessageType::kNIMMessageTypeCustom == data.msg_type_) {
+        auto timestamp = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+        QLOG_APP(L"msg content: {0} , msg attach: {1}, msg timetag_:{2}, local time:{3}")
+            << data.msg_content_ << data.msg_attach_ << data.msg_timetag_ << timestamp;
+        // 如果时间差值小于15秒，则显示对话框
+        auto diff = std::llabs(data.msg_timetag_ - timestamp);
+        if (diff < (15 * 1000)) {
+            if (VideoManagerG2::GetInstance()->IsTalking() == false) {
+                Json::Value values;
+                Json::Reader reader;
+                if (reader.parse(data.msg_attach_, values)) {
+                    
+                    VideoManagerG2::GetInstance()->SetInvitorInfo(data.msg_sender_accid_, data.id_, values["data"]["channelName"].asString());
+                    VideoManagerG2::GetInstance()
+                        ->ShowVideoChatForm(data.msg_sender_accid_, false, false);
+                }
+            }
+        }
+    }
     switch (data.command_) {
         case nim::kNIMSessionCommandAdd: {
             SubscribeEventManager::GetInstance()->SubscribeSessionEvent(data);

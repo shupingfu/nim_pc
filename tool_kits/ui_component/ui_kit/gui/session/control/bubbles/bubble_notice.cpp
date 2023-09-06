@@ -14,6 +14,7 @@ void MsgBubbleNotice::InitControl()
 
 void MsgBubbleNotice::InitInfo(const nim::IMMessage &msg, const UTF8String& session_id, bool is_custom_info)
 {
+    QLOG_APP(L"init info: msg content:{0} ,iscustominfo:{1}") << msg.content_ << is_custom_info;
 	is_custom_info_ = is_custom_info;
 	msg_ = msg;
 	session_id_ = session_id;
@@ -37,8 +38,10 @@ void MsgBubbleNotice::RefreshNotice()
 		return;
 
 	std::wstring wstr;
-	if (msg_.type_ == nim::kNIMMessageTypeCustom)
-		wstr = GetCustomMsg(msg_.sender_accid_, msg_.attach_);
+    if (msg_.type_ == nim::kNIMMessageTypeCustom) {
+        QLOG_APP(L"app: msg content:{0}  attach: {1}") << msg_.content_ << msg_.attach_;
+        wstr = GetCustomMsg(msg_.sender_accid_, msg_.attach_);
+	}
 	else if (msg_.type_ == nim::kNIMMessageTypeNotification)
 		GetNotifyMsg(msg_.attach_, msg_.sender_accid_, msg_.receiver_accid_, wstr, session_id_);
 	else if (msg_.type_ == nim::kNIMMessageTypeTips)

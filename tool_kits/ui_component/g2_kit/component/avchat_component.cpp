@@ -1,8 +1,13 @@
 #include "pch.h"
+#include "app_sdk_generate.h"
+#include "httplib.h"
 #include "avchat_component.h"
 #include "avchat_component_def.h"
 #include "base/win32/path_util.h"
 #include "wrapper/avchat_business_wrapper.h"
+#include "stdafx.h"
+#include <chrono>
+
 
 namespace nim_comp
 {
@@ -44,8 +49,19 @@ namespace nim_comp
 		}
 	}
 
+	void AvChatComponent::setupInvitirInfo(std::string senderId, std::string sessionId, std::string channelName, int channelType) {
+            invitedInfo_.from_account_id_ = senderId;
+            senderAccid = senderId;
+            invitedInfo_.channel_info_.channel_name_ = channelName;
+            invitedInfo_.channel_info_.channel_id_ = channelName;
+			
+            invitedInfo_.channel_info_.channel_type_ =
+                channelType == 1 ? nim::NIMSignalingType::kNIMSignalingTypeAudio : nim::NIMSignalingType::kNIMSignalingTypeVideo;
+	}
+
 	void AvChatComponent::setupAppKey(const std::string& key, bool useRtcSafeMode)
 	{
+        QLOG_APP(L"setupAppKey key:{0}, rtcSafeMode: {1}")<< key << useRtcSafeMode;
 		appKey_ = key;
 		isUseRtcSafeMode = useRtcSafeMode;
 		//创建并初始化engine；
@@ -228,6 +244,22 @@ namespace nim_comp
 
 	}
 
+	int userId2Int(std::string id) {
+		std::map<char, int> m{{'a', 1},  {'b', 2},  {'c', 3},  {'d', 4},  {'e', 5},  {'f', 6},  {'g', 7},  {'h', 8},  {'i', 9},
+								{'j', 10}, {'k', 11}, {'l', 12}, {'m', 13}, {'n', 14}, {'o', 15}, {'p', 16}, {'q', 17}, {'r', 18},
+								{'s', 19}, {'t', 20}, {'u', 21}, {'v', 22}, {'w', 23}, {'x', 24}, {'y', 25}, {'z', 26}};
+		int ret = 0;
+		for (auto c : id) {
+			auto ch = tolower(c);
+			auto it = m.find(ch);
+			if (it != m.end()) {
+				ret = ret * 10 + it->second;
+			} else {
+				ret = ret * 10 + ch;
+			}
+		}
+		return ret;
+	};
 	// 呼叫方首先发送INVITE，扩展字段携带自身版本号(version)及动态channelName，即<channelId> | 0 | <uid>，并直接预加载token。
 	// 0代表1v1，uid为信令房间返回的用户uid；1代表group呼叫，uid传群组teamId
 	void AvChatComponent::call(const std::string& userId, AVCHAT_CALL_TYPE type, AvChatComponentOptCb cb)
@@ -244,10 +276,71 @@ namespace nim_comp
 		invitedInfo_ = SignalingNotifyInfoInvite();
 		createdChannelInfo_ = SignalingCreateResParam();
 		isMasterInvited = true; //主叫方标记true
+		isUseRtcSafeMode = true;
+		QLOG_APP(L"call callType: {0}, toAccid:{1}, senderAccid:{2}, isUseRtcSafeMode:{3}")
+                    << callType << toAccid << senderAccid << isUseRtcSafeMode;
 
-		//1,创建channel
-		auto createCb = nbase::Bind(&AvChatComponent::signalingCreateCb, this,  _1, _2, cb);
-		Signaling::SignalingCreate(createParam, createCb);
+		unsigned long milliseconds_since_epoch = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+        if (type == kAvChatAudio) {
+            nim::SysMessageSetting setting;
+            setting.need_offline_ = BS_FALSE;
+			            Json::Value json;
+            Json::FastWriter writer;
+            json["type"] = 2;
+            json["upload_tag"] = "nim_default_im";
+            json["data"]["channelName"]= std::string("channel-")+std::to_string(milliseconds_since_epoch);
+            json["data"]["accId"] = senderAccid;
+			nim::IMMessage msg;
+            msg.session_type_ = nim::NIMSessionType::kNIMSessionTypeP2P;
+            msg.receiver_accid_ = userId;
+            msg.sender_accid_ = LoginManager::GetInstance()->GetAccount();
+            msg.client_msg_id_ = nim::Tool::GetUuid();
+            msg.msg_setting_.resend_flag_ = BS_FALSE;
+            msg.timetag_ = 1000 * nbase::Time::Now().ToTimeT();
+			msg.type_ = nim::kNIMMessageTypeCustom;
+            msg.status_ = nim::kNIMMsgLogStatusSending;
+            msg.content_ = nbase::UTF16ToUTF8(ui::MutiLanSupport::GetInstance()->GetStringViaID(L"STRID_SESSION_ITEM_MSG_TYPE_AUDIO_CHAT"));
+            msg.attach_ = writer.write(json);
+            nim::Talk::SendMsg(msg.ToJsonString(true));
+
+            std::string channelName = "channel-" + std::to_string(milliseconds_since_epoch);
+            std::string uri = "/api/im/config/getNERTCToken?uid=" + senderAccid + "&channelName=" + channelName;
+			httplib::Client cli(K_APP_SERVER_ADDRESS);
+			auto res = cli.Get(uri);
+
+			QLOG_APP(L"res status: {0}, body: {1}") << res->status << res->body;
+			if (res->status == 200) {
+				std::string token = res->body;
+				token.erase(token.find_last_not_of('"') + 1);
+				token.erase(0, token.find_first_not_of('"'));
+                createdChannelInfo_.channel_info_.channel_name_ = channelName;
+                createdChannelInfo_.channel_info_.channel_id_ = channelName;
+                createdChannelInfo_.channel_info_.channel_type_ = nim::NIMSignalingType::kNIMSignalingTypeAudio;
+                createdChannelInfo_.channel_info_.nertc_token_ = token;
+                rtcEngine_->setAudioProfile(nertc::kNERtcAudioProfileStandardExtend, nertc::kNERtcAudioScenarioSpeech);
+                int ret = rtcEngine_->joinChannel(token.c_str(), channelName.c_str(), userId2Int(LoginManager::GetInstance()->GetAccount());
+                if (ret != 0) {
+                    QLOG_ERR(L"nertc join channel failed: {0}") << ret;
+                    if (cb)
+                        cb(400);
+                    return;
+				}
+				else {
+                    QLOG_APP(L"join channel success: ret: {0}") << ret;
+				}
+                std::vector<std::string> members;
+                members.push_back(userId);
+                status_ = inCall;
+                from_account_id_ = senderAccid;
+				}
+		
+        } 
+		else {
+            // 1,创建channel
+            auto createCb = nbase::Bind(&AvChatComponent::signalingCreateCb, this, _1, _2, cb);
+            Signaling::SignalingCreate(createParam, createCb);
+		}
+
 		status_ = calling;
 		startDialWaitingTimer();
 		rtcEngine_->stopVideoPreview();
@@ -289,7 +382,8 @@ namespace nim_comp
 		param.request_id_ = invitedInfo_.request_id_;
 		param.offline_enabled_ = true;
 		param.uid_ = 0;
-
+        QLOG_APP(L"acc_id: {0} chn_id: {1}  req_id: {2} ")
+                    << invitedInfo_.from_account_id_ << invitedInfo_.channel_info_.channel_id_ << invitedInfo_.request_id_;
 		Json::Value values;
 		//TODO PC暂不实现多人通话，故此处不处理channel中的其他人的信息
 		//单人通话不传kAvChatChannelMembers
@@ -299,11 +393,14 @@ namespace nim_comp
 		Json::FastWriter fw;
 		param.accept_custom_info_ = fw.write(values);
 
-		//int ret = rtcEngine_->joinChannel("", param.channel_id_.c_str(), 0);
-		auto acceptCb = nbase::Bind(&AvChatComponent::signalingAcceptCb, this, _1, _2, cb);
+		int ret = rtcEngine_->joinChannel("", param.channel_id_.c_str(), 0);
+		QLOG_APP(L"join channel ret: {0}") << ret;
+		if (cb)
+			cb(200);
+		//auto acceptCb = nbase::Bind(&AvChatComponent::signalingAcceptCb, this, _1, _2, cb);
 
-		QLOG_APP(L"accept, version: {0}") << RTC_COMPONENT_VER;
-		Signaling::Accept(param, acceptCb);
+		//QLOG_APP(L"accept, version: {0}") << RTC_COMPONENT_VER;
+		//Signaling::Accept(param, acceptCb);
 	}
 
 	void AvChatComponent::reject(AvChatComponentOptCb cb)
@@ -513,6 +610,7 @@ namespace nim_comp
 
 	void AvChatComponent::requestTokenValue(int64_t uid)
 	{
+        QLOG_APP(L"requestTokenValue uid: {0}, rtcSafeMode: {1}") << uid << isUseRtcSafeMode;
 		stoken_ = "xyz";
 		if (isUseRtcSafeMode) {
 			//int64_t uid;
@@ -702,6 +800,12 @@ namespace nim_comp
 
 	void AvChatComponent::signalingCreateCb(int errCode, std::shared_ptr<SignalingResParam> res_param, AvChatComponentOptCb cb)
 	{
+            QLOG_APP(L"errCode: {0}") << errCode;
+        if (res_param) {
+            SignalingCreateResParam* res = (SignalingCreateResParam*)res_param.get();
+            QLOG_APP(L"res_param: id :{0}") << res->channel_info_.channel_id_;
+		}
+            
 		if (errCode != 200)
 		{
 			QLOG_ERR(L"SignalingOptCallback error: errCode:{0}") << errCode;
@@ -1088,8 +1192,9 @@ namespace nim_comp
 	}
 	///////////////////////////////G2事件///////////////////////////////
 	void AvChatComponent::onJoinChannel(nertc::channel_id_t cid, nertc::uid_t uid, nertc::NERtcErrorCode result, uint64_t elapsed) {
-		QLOG_APP(L"onJoinChannel");
-		//rtcEngine_->enableLocalAudio(true);
+		QLOG_APP(L"onJoinChannel, cid: {0}, uid: {1}, result: {2}")<< cid << uid<< result;
+		rtcEngine_->enableLocalAudio(true);
+        //compEventHandler_.lock()->onUserAccept(toAccid);
 	}
 	void AvChatComponent::onUserJoined(nertc::uid_t uid, const char* user_name)
 	{

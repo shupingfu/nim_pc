@@ -81,6 +81,7 @@ namespace nim_comp
 		~AvChatComponent();
 		void release();
 		//useRtcSafeMode默认使用安全模式
+        void setupInvitirInfo(std::string senderId, std::string sessionId, std::string channelName, int channelType);
 		void setupAppKey(const std::string& key, bool useRtcSafeMode = true);
 		void login(const std::string& account, const std::string& token, AvChatComponentOptCb cb);
 		void logout(AvChatComponentOptCb cb);
