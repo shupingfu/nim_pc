@@ -318,7 +318,7 @@ namespace nim_comp
                 createdChannelInfo_.channel_info_.channel_type_ = nim::NIMSignalingType::kNIMSignalingTypeAudio;
                 createdChannelInfo_.channel_info_.nertc_token_ = token;
                 rtcEngine_->setAudioProfile(nertc::kNERtcAudioProfileStandardExtend, nertc::kNERtcAudioScenarioSpeech);
-                int ret = rtcEngine_->joinChannel(token.c_str(), channelName.c_str(), userId2Int(LoginManager::GetInstance()->GetAccount());
+                int ret = rtcEngine_->joinChannel(token.c_str(), channelName.c_str(), userId2Int(LoginManager::GetInstance()->GetAccount()));
                 if (ret != 0) {
                     QLOG_ERR(L"nertc join channel failed: {0}") << ret;
                     if (cb)
