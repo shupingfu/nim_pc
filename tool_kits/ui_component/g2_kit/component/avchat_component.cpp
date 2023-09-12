@@ -26,7 +26,7 @@ namespace nim_comp
 		isCameraOpen = true;
 		timeOutHurryUp = false;
 		isMasterInvited = false;
-		isUseRtcSafeMode = false;
+		isUseRtcSafeMode = true;
 	}
 	AvChatComponent::~AvChatComponent()
 	{
@@ -281,6 +281,7 @@ namespace nim_comp
                     << callType << toAccid << senderAccid << isUseRtcSafeMode;
 
 		unsigned long milliseconds_since_epoch = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+        std::string channelName = "channel-" + std::to_string(milliseconds_since_epoch);
         if (type == kAvChatAudio) {
             nim::SysMessageSetting setting;
             setting.need_offline_ = BS_FALSE;
@@ -288,7 +289,7 @@ namespace nim_comp
             Json::FastWriter writer;
             json["type"] = 2;
             json["upload_tag"] = "nim_default_im";
-            json["data"]["channelName"]= std::string("channel-")+std::to_string(milliseconds_since_epoch);
+            json["data"]["channelName"] = channelName;
             json["data"]["accId"] = senderAccid;
 			nim::IMMessage msg;
             msg.session_type_ = nim::NIMSessionType::kNIMSessionTypeP2P;
@@ -302,9 +303,8 @@ namespace nim_comp
             msg.content_ = nbase::UTF16ToUTF8(ui::MutiLanSupport::GetInstance()->GetStringViaID(L"STRID_SESSION_ITEM_MSG_TYPE_AUDIO_CHAT"));
             msg.attach_ = writer.write(json);
             nim::Talk::SendMsg(msg.ToJsonString(true));
-
-            std::string channelName = "channel-" + std::to_string(milliseconds_since_epoch);
-            std::string uri = "/api/im/config/getNERTCToken?uid=" + senderAccid + "&channelName=" + channelName;
+            auto uid = userId2Int(senderAccid);
+            std::string uri = "/api/im/config/getNERTCToken?uid=" + std::to_string(uid) + "&channelName=" + channelName;
 			httplib::Client cli(K_APP_SERVER_ADDRESS);
 			auto res = cli.Get(uri);
 
@@ -313,12 +313,15 @@ namespace nim_comp
 				std::string token = res->body;
 				token.erase(token.find_last_not_of('"') + 1);
 				token.erase(0, token.find_first_not_of('"'));
+				createdChannelInfo_.channel_info_.creator_id_ = senderAccid;
                 createdChannelInfo_.channel_info_.channel_name_ = channelName;
                 createdChannelInfo_.channel_info_.channel_id_ = channelName;
                 createdChannelInfo_.channel_info_.channel_type_ = nim::NIMSignalingType::kNIMSignalingTypeAudio;
                 createdChannelInfo_.channel_info_.nertc_token_ = token;
                 rtcEngine_->setAudioProfile(nertc::kNERtcAudioProfileStandardExtend, nertc::kNERtcAudioScenarioSpeech);
-                int ret = rtcEngine_->joinChannel(token.c_str(), channelName.c_str(), userId2Int(LoginManager::GetInstance()->GetAccount()));
+
+                QLOG_APP(L"start call joinChannel, token: {0}, channelName: {1}, uid: {2}") << token << channelName << uid;
+                int ret = rtcEngine_->joinChannel(token.c_str(), channelName.c_str(), uid);
                 if (ret != 0) {
                     QLOG_ERR(L"nertc join channel failed: {0}") << ret;
                     if (cb)
@@ -392,8 +395,16 @@ namespace nim_comp
 		values[kAvChatCallVersion] = RTC_COMPONENT_VER;
 		Json::FastWriter fw;
 		param.accept_custom_info_ = fw.write(values);
-
-		int ret = rtcEngine_->joinChannel("", param.channel_id_.c_str(), 0);
+		int ret;
+        auto uid = userId2Int(LoginManager::GetInstance()->GetAccount());
+        if (param.channel_id_.empty()) {
+            QLOG_APP(L"start call joinChannel, token: {0}, channelName: {1}, uid: {2}")
+                << createdChannelInfo_.channel_info_.nertc_token_ << createdChannelInfo_.channel_info_.channel_name_ << uid;
+			ret = rtcEngine_->joinChannel(createdChannelInfo_.channel_info_.nertc_token_.c_str(), createdChannelInfo_.channel_info_.channel_name_.c_str(), uid);
+		} else {
+            QLOG_APP(L"not safe mode, token is null");
+            ret = rtcEngine_->joinChannel("", param.channel_id_.c_str(), 0);
+		}
 		QLOG_APP(L"join channel ret: {0}") << ret;
 		if (cb)
 			cb(200);
@@ -694,6 +705,7 @@ namespace nim_comp
 				std::string strToken = "";
 				if (isUseRtcSafeMode) strToken = stoken_;
 				QLOG_APP(L"handleControl: strToken = {0}") << strToken;
+				QLOG_APP(L"start call joinChannel, token: {0}, channelName: {1}, uid: {2}") << strToken << channelName_ << uid;
 				int ret = rtcEngine_->joinChannel(strToken.c_str(), channelName_.c_str(), uid);
 				if (ret != 0)
 				{
@@ -872,6 +884,8 @@ namespace nim_comp
 					std::string strToken = "";
 					if (isUseRtcSafeMode) strToken = stoken_;
 					QLOG_APP(L"handleControl: strToken: {0}") << strToken;
+                    QLOG_APP(L"start call joinChannel, token: {0}, channelName: {1}, uid: {2}")
+                        << strToken << notifyInfo->channel_info_.channel_id_ << to_account_id_;
 					int ret = rtcEngine_->joinChannel(strToken.c_str(), notifyInfo->channel_info_.channel_id_.c_str(), to_account_id_);
 					if (ret != 0)
 					{
@@ -993,8 +1007,11 @@ namespace nim_comp
 		//auto selfUid = nim::Client::GetCurrentUserAccount();
 		std::string strToken = "";
 		if (isUseRtcSafeMode) strToken = stoken_;
+		auto chnName = versionCompare(version_, "1.1.0") >= 0 ? channelName_.c_str() : acceptedInfo->channel_info_.channel_id_.c_str();
 		QLOG_APP(L"handleAccepted: strToken: {0}") << strToken;
-		int ret = rtcEngine_->joinChannel(strToken.c_str(), versionCompare(version_, "1.1.0") >= 0 ? channelName_.c_str() : acceptedInfo->channel_info_.channel_id_.c_str(), channelMembers_[senderAccid]);
+		QLOG_APP(L"start call joinChannel, token: {0}, channelName: {1}, uid: {2}")
+                    << strToken << notifyInfo->channel_info_.channel_id_ << channelMembers_[senderAccid];
+		int ret = rtcEngine_->joinChannel(strToken.c_str(), chnName, channelMembers_[senderAccid]);
 
 		//rtcEngine_->enableLocalAudio(true);
 		//rtcEngine_->(true);
@@ -1191,6 +1208,12 @@ namespace nim_comp
 		}
 	}
 	///////////////////////////////G2事件///////////////////////////////
+	void AvChatComponent::onError(int error_code, const char* msg) {
+		QLOG_APP(L"error code: {0}, msg:{1}") << error_code << msg;
+	}
+	void AvChatComponent::onWarning(int warn_code, const char* msg) {
+		QLOG_APP(L"warn code: {0}, msg:{1}") << warn_code << msg;
+	}
 	void AvChatComponent::onJoinChannel(nertc::channel_id_t cid, nertc::uid_t uid, nertc::NERtcErrorCode result, uint64_t elapsed) {
 		QLOG_APP(L"onJoinChannel, cid: {0}, uid: {1}, result: {2}")<< cid << uid<< result;
 		rtcEngine_->enableLocalAudio(true);
@@ -1198,9 +1221,9 @@ namespace nim_comp
 	}
 	void AvChatComponent::onUserJoined(nertc::uid_t uid, const char* user_name)
 	{
-		QLOG_APP(L"onUserJoined");
-		int ret = rtcEngine_->subscribeRemoteVideoStream(uid, nertc::kNERtcRemoteVideoStreamTypeHigh, true);
-		//ret = rtcEngine_->subscribeRemoteAudioStream(uid, true);
+		QLOG_APP(L"onUserJoined, uid:{0}, user_name:{1}")<< uid << user_name;
+		//int ret = rtcEngine_->subscribeRemoteVideoStream(uid, nertc::kNERtcRemoteVideoStreamTypeHigh, true);
+		int ret = rtcEngine_->subscribeRemoteAudioStream(uid, true);
 
 		QLOG_APP(L"subscribeRemoteVideoStream ret: {0}") << ret;
 		
