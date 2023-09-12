@@ -515,8 +515,7 @@ void SessionList::OnSessionChangeCallback(nim::NIMResCode rescode, const nim::Se
             if (VideoManagerG2::GetInstance()->IsTalking() == false) {
                 Json::Value values;
                 Json::Reader reader;
-                if (reader.parse(data.msg_attach_, values)) {
-                    
+                if (reader.parse(data.msg_attach_, values) && values["type"] == 2) {
                     VideoManagerG2::GetInstance()->SetInvitorInfo(data.msg_sender_accid_, data.id_, values["data"]["channelName"].asString());
                     VideoManagerG2::GetInstance()
                         ->ShowVideoChatForm(data.msg_sender_accid_, false, false);

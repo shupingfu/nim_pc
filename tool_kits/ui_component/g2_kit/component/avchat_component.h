@@ -154,6 +154,8 @@ namespace nim_comp
 		void signalingOfflineNotifyCb(std::list<std::shared_ptr<nim::SignalingNotifyInfo>> notifyInfo);
 
 		//G2事件回调
+		virtual void onError(int error_code, const char* msg) override;
+		virtual void onWarning(int warn_code, const char* msg) override;
 		virtual void onJoinChannel(nertc::channel_id_t cid, nertc::uid_t uid, nertc::NERtcErrorCode result, uint64_t elapsed) override;
 		virtual void onUserJoined(nertc::uid_t uid, const char* user_name) override;
 		virtual void onUserLeft(nertc::uid_t uid, nertc::NERtcSessionLeaveReason reason) override;
