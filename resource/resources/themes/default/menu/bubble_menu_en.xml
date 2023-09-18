@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window>
     <VListBox class="menu">
+        <MenuElement class="MenuElement" name="reply" width="170">
+            <Label class="menu_text" textid="STRID_SESSION_BUBBLE_MENU_REPLY"/>
+        </MenuElement>
         <MenuElement class="MenuElement" name="copy" width="188">
             <Label class="menu_text" textid="STRID_SESSION_BUBBLE_MENU_COPY"/>
         </MenuElement>

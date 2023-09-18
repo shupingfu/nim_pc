@@ -507,6 +507,7 @@ void SessionBox::SetTeamMuteUI(bool mute)
 	input_edit_->SetReadOnly(mute);
 	btn_capture_audio_->SetEnabled(!mute);
 	//btn_send_->SetEnabled(!mute);
+	FindSubControl(L"btn_reply_msg_cancel")->SetEnabled(!mute);
 	FindSubControl(L"btn_face")->SetEnabled(!mute);
 	FindSubControl(L"btn_image")->SetEnabled(!mute);
 	FindSubControl(L"btn_file")->SetEnabled(!mute);

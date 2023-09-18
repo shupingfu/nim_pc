@@ -1259,6 +1259,7 @@ private:
 	ui::RichEdit*	input_edit_;
 	IDropTarget		*input_edit_droptarget_;
 	IRichEditOleCallbackEx *richedit_ole_callback_;
+    ui::Button*		btn_reply_msg_cancel_;
 
 	// 群功能相关控件
 	ui::Button*		btn_new_broad_;
@@ -1329,5 +1330,6 @@ private:
 	AutoUnregister	unregister_cb;
 	std::map< std::string, std::list<StdClosure>> closure_befor_item_add_;
 	std::list<nim::IMMessage> new_msgs_need_to_send_mq_;
+    nim::IMMessage reply_msg_item_; //要回复的消息对象.
 };
 }

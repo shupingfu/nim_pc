@@ -30,7 +30,9 @@ public:
 
 	virtual void SetTextColor(const std::wstring& dwTextColor);
 
-protected:
+	void SetShowText(std::string);
+
+    protected:
 	/**
 	* 设置此消息项显示的文本
 	* @param[in] str 设置显示的文本 (可能包含表情信息)

@@ -130,6 +130,7 @@ namespace nim_comp
         input_edit_->SetNoCaretReadonly();
         input_edit_->AttachReturn(nbase::Bind(&SessionBox::OnInputEditEnter, this, std::placeholders::_1));
         btn_send_ = (Button*)FindSubControl(L"btn_send");
+        btn_reply_msg_cancel_ = (Button*)FindSubControl(L"btn_reply_msg_cancel");
 
         btn_new_broad_ = (Button*)FindSubControl(L"btn_new_broad");
         btn_new_broad_->SetVisible(false);
@@ -422,11 +423,77 @@ namespace nim_comp
                 return nullptr;
             }
         }
-
+        bool is_reply=false;
         if (msg.type_ == nim::kNIMMessageTypeText ||
             IsNetCallMsg(msg.type_, msg.attach_))
         {
             item = new MsgBubbleText;
+            Json::Value values;
+            if (Json::Reader().parse(msg.attach_, values) && values.isMember("yxReplyMsg")) {
+                auto msg_client_id = values["yxReplyMsg"]["idClient"].asString();
+                nim::MsgLog::QueryMsgByIDAysnc(
+                    msg_client_id, ToWeakCallback([msg, this](nim::NIMResCode res_code, const std::string& msg_id, const nim::IMMessage& it) {
+                        if (res_code == nim::kNIMResSuccess) {
+                            MsgBubbleText* msg_item = NULL;
+                            for (int i = 0; i < msg_list_->GetCount(); i++) {
+                                if (msg_list_->GetItemAt(i)->GetUTF8Name() == msg.client_msg_id_) {
+                                    msg_item = dynamic_cast<MsgBubbleText*>(msg_list_->GetItemAt(i));
+                                    std::string txt;
+                                    switch (it.type_) {
+                                        case nim::kNIMMessageTypeText: {
+                                            txt = it.content_;
+                                            break;
+                                        }
+                                        case nim::kNIMMessageTypeImage: {
+                                            txt = "[图片]";
+                                            break;
+                                        }
+                                        case nim::kNIMMessageTypeG2NetCall:
+                                        case nim::kNIMMessageTypeAudio: {
+                                            txt = "[语音]";
+                                            break;
+                                        }
+                                        case nim::kNIMMessageTypeVideo: {
+                                            txt = "[视频]";
+                                            break;
+                                        }
+                                        case nim::kNIMMessageTypeLocation: {
+                                            txt = "[位置]";
+                                            break;
+                                        }
+                                        case nim::kNIMMessageTypeNotification: {
+                                            txt = "[通知]";
+                                            break;
+                                        }
+                                        case nim::kNIMMessageTypeFile: {
+                                            txt = "[文件]";
+                                            break;
+                                        }
+                                        case nim::kNIMMessageTypeCustom: {
+                                            txt = "[自定义消息]";
+                                            Json::Value values;
+                                            Json::Reader reader;
+                                            if (!it.attach_.empty() && reader.parse(it.attach_, values) && values.isMember("type") &&
+                                                values["type"].asInt() == 3) {
+                                                txt = "[图片]";
+                                            }
+                                            break;
+                                        }
+                                        default:
+                                            txt = "[未知消息类型]";
+                                            break;
+                                    }
+                                    std::string name =it.readonly_sender_nickname_;
+                                    if (name.empty())
+                                        name = it.sender_accid_;
+                                    std::string append = "\n   回复 '" + it.readonly_sender_nickname_ + ": " + txt + "'";
+                                    msg_item->SetShowText(append);
+                                }
+                            }
+                        }
+                    }));
+
+            }
         }
         else if (msg.type_ == nim::kNIMMessageTypeImage)
             item = new MsgBubbleImage;
@@ -1162,7 +1229,34 @@ namespace nim_comp
                 }));
                 return;
             }
-            json_msg = nim::Talk::CreateTextMessage(msg.receiver_accid_, msg.session_type_, msg.client_msg_id_, msg.content_, msg.msg_setting_, msg.timetag_);
+
+            nim_cpp_wrapper_util::Json::Value values;
+            values[nim::kNIMMsgKeyToAccount] = msg.receiver_accid_;
+            values[nim::kNIMMsgKeyToType] = msg.session_type_;
+            values[nim::kNIMMsgKeyClientMsgid] = msg.client_msg_id_;
+            values[nim::kNIMMsgKeyBody] = msg.content_;
+            values[nim::kNIMMsgKeyType] = nim::kNIMMessageTypeText;
+            values[nim::kNIMMsgKeyLocalTalkId] = msg.receiver_accid_;
+            values[nim::kNIMMsgKeyTime] = msg.timetag_;
+            msg.msg_setting_.ToJsonValue(values);
+            nim_cpp_wrapper_util::Json::StreamWriterBuilder builder;
+            builder["indentation"] = "";
+            builder["emitUTF8"] = true;
+            if (btn_reply_msg_cancel_->IsVisible()) {
+                btn_reply_msg_cancel_->SetVisible(false);
+                Json::FastWriter writer;
+                Json::Value json;
+                json["yxReplyMsg"]["idClient"] = reply_msg_item_.client_msg_id_;
+                json["yxReplyMsg"]["from"] = LoginManager::GetInstance()->GetAccount();
+                json["yxReplyMsg"]["to"] = msg.receiver_accid_;
+                json["yxReplyMsg"]["time"] = reply_msg_item_.timetag_;
+                json["yxReplyMsg"]["scene"] =
+                    reply_msg_item_.session_type_ == 0 ? "p2p" : "team";  ///< todo: 除了team，其他场景名称未知
+                json["yxReplyMsg"]["idserver"] =
+                    std::to_string(reply_msg_item_.readonly_server_id_);  ///< todo: 示例是string类型,为何要转string?
+                values[nim::kNIMMsgKeyAttach] = writer.write(json);
+            }
+            json_msg = nim_cpp_wrapper_util::Json::writeString(builder, values);
         }
 
         AddSendingMsg(msg);

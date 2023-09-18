@@ -248,6 +248,65 @@ bool SessionBox::Notify(ui::EventArgs* param)
 					OnMenuRetweetMessage(msg);
 			}));			
 		}
+		else if (param->wParam == BET_REPLY) {
+			nim::MsgLog::QueryMsgByIDAysnc(
+				md.client_msg_id_, ToWeakCallback([this](nim::NIMResCode res_code, const std::string& msg_id, const nim::IMMessage& msg) {
+                    if (res_code == nim::kNIMResSuccess) {
+                        QLOG_APP(L"find msg, msg type:{0},msg content:{1}, attach:{2},send_id:{3}")<< msg.type_<< msg.content_<< msg.attach_<< msg.sender_accid_;
+                        std::string txt;
+                        switch (msg.type_) {
+                            case nim::kNIMMessageTypeText : {
+                                txt = msg.content_;
+                                break;
+                            }
+                            case nim::kNIMMessageTypeImage: {
+                                txt = "[图片]";
+                                break;
+                            }
+                            case nim::kNIMMessageTypeG2NetCall:
+                            case nim::kNIMMessageTypeAudio: {
+                                txt = "[语音]";
+                                break;
+                            }
+                            case nim::kNIMMessageTypeVideo: {
+                                txt = "[视频]";
+                                break;
+                            }
+                            case nim::kNIMMessageTypeLocation: {
+                                txt = "[位置]";
+                                break;
+                            }
+                            case nim::kNIMMessageTypeNotification: {
+                                txt = "[通知]";
+                                break;
+                            }
+                            case nim::kNIMMessageTypeFile: {
+                                txt = "[文件]";
+                                break;
+                            }
+                            case nim::kNIMMessageTypeCustom: {
+								txt = "[自定义消息]";
+								Json::Value values;
+								Json::Reader reader;
+                                if (!msg.attach_.empty() && reader.parse(msg.attach_, values) &&
+                                    values.isMember("type") && values["type"].asInt() == 3) {
+                                    txt = "[图片]";
+                                }
+                                break;
+                            }
+                            default:
+                                txt = "[未知消息类型]";
+                                break;
+                        }
+                        btn_reply_msg_cancel_->SetUTF8Text(msg.sender_accid_ + ": " + txt);
+                        btn_reply_msg_cancel_->SetVisible(true);
+                        reply_msg_item_ = msg;
+					}
+					else
+						QLOG_APP(L"not find msg");
+						//OnMenuRetweetMessage(msg);
+			}));
+		}
 		else if (param->wParam == BET_RECALL)
 		{
 			nim::Talk::RecallMsg(md, "test notify when recall", nbase::Bind(&nim_comp::TalkCallback::OnReceiveRecallMsgCallback, std::placeholders::_1, std::placeholders::_2));
@@ -516,6 +575,8 @@ bool SessionBox::OnClicked(ui::EventArgs* param)
 	else if (name == L"btn_team_ack_msg")
 	{
 		SendText(nim::Tool::GetUuid(), true);
+    } else if (name == L"btn_reply_msg_cancel") {
+		btn_reply_msg_cancel_->SetVisible(false);
 	}
 	return true;
 }
