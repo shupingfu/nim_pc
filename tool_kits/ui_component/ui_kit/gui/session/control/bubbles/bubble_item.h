@@ -17,6 +17,7 @@ enum BubbleEventType
 	BET_UNREAD_COUNT,	//未读列表
     BET_MUTE_MEMBER,   //禁言
     BET_REMOVE_MEMBER,  // 踢出本群
+	BET_REPLY,		// 引用回复
 };
 
 namespace nim_comp

@@ -316,6 +316,8 @@ void MsgBubbleItem::PopupMenu(bool copy, bool recall, bool retweet/* = true*/)
 		menu_xml = L"bubble_menu_en.xml";
 	STRINGorID xml(menu_xml.c_str());
 	menu_->Init(xml, _T("xml"), point);
+	CMenuElementUI* reply = (CMenuElementUI*)menu_->FindControl(L"reply");
+	reply->AttachSelect(nbase::Bind(&MsgBubbleItem::OnMenu, this, std::placeholders::_1));
 	
 	CMenuElementUI* cop = (CMenuElementUI*) menu_->FindControl(L"copy");
 	cop->AttachSelect(nbase::Bind(&MsgBubbleItem::OnMenu, this, std::placeholders::_1));
@@ -346,6 +348,10 @@ void MsgBubbleItem::PopupMenu(bool copy, bool recall, bool retweet/* = true*/)
 bool MsgBubbleItem::OnMenu( ui::EventArgs* arg )
 {
 	std::wstring name = arg->pSender->GetName();
+    if (name == L"reply")
+	{
+        m_pWindow->SendNotify(this, ui::kEventNotify, BET_REPLY, 0);
+	}
 	if (name == L"copy")
 	{
 		OnMenuCopy();

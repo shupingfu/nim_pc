@@ -112,6 +112,8 @@
             <Button name="btn_msg_record" valign="center" cursortype="hand" normaltextcolor="link_blue" textid="STRID_SESSION_MSG_RECORD"/>
           </HBox>
           <Control height="6"/>
+          
+          <Button name="btn_reply_msg_cancel" margin="10,10,0,0" tooltiptextid="STRID_SESSION_BUBBLE_MENU_REPLY_CAN" textid="STRID_SESSION_BUBBLE_MENU_REPLY" singleline="true" endellipsis="true" normaltextcolor="gray" hottextcolor="link_blue" visible="false"/>
           <Box height="auto">
             <MenuedRichEdit class="prompt" name="input_edit" minheight="86" maxheight="300" multiline="true" vscrollbar="true" autovscroll="true" readonly="false" font="2" defmenu="MID_COPY,MID_CUT,MID_PASTE" normaltextcolor="darkcolor" margin="2,2,2,2" padding="8,0,0,0" wantreturnmsg="true" rich="true"/>
             <Label name="input_edit_mute_tip" valign="center" halign="center" textid="STRID_SESSION_MUTE" visible="false" normaltextcolor="gray"/>

@@ -178,16 +178,17 @@ void SessionItem::UpdateMsgContent(const std::string& id /*= ""*/) {
         if (msg_->msg_type_ == nim::kNIMMessageTypeText) {
             Json::Value values;
             Json::Reader reader;
-            if (reader.parse(msg_->msg_attach_, values) && values.isObject() && values.isMember("comment") &&
-                values["comment"].asString() == "is_recall_notification") {
-                if (values.isMember("notify_from")) {
-                    need_prefix = false;
-                    std::string from_id = values["notify_from"].asString();
-                    std::string from_nick = values["from_nick"].asString();
-                    std::string operator_id = values["operator_id"].asString();
-                    if (operator_id.empty())
-                        operator_id = from_id;
-                    show_text = GetRecallNotifyTextEx(msg_->id_, msg_->type_, from_id, operator_id, from_nick);
+            if (reader.parse(msg_->msg_attach_, values) && values.isObject()){
+                if (values.isMember("comment") && values["comment"].asString() == "is_recall_notification") {
+                    if (values.isMember("notify_from")) {
+                        need_prefix = false;
+                        std::string from_id = values["notify_from"].asString();
+                        std::string from_nick = values["from_nick"].asString();
+                        std::string operator_id = values["operator_id"].asString();
+                        if (operator_id.empty())
+                            operator_id = from_id;
+                        show_text = GetRecallNotifyTextEx(msg_->id_, msg_->type_, from_id, operator_id, from_nick);
+                    }
                 }
             }
         }

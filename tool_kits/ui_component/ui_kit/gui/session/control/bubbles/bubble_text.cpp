@@ -70,6 +70,11 @@ void MsgBubbleText::SetTextColor(const std::wstring& dwTextColor) {
     text_->SetTextColor(dwTextColor);
 }
 
+
+void MsgBubbleText::SetShowText(std::string txt) {
+    this->SetMsgText(nbase::UTF8ToUTF16(txt));
+}
+
 void MsgBubbleText::SetMsgText( const std::wstring &str )
 {
 	if(str.empty())
