@@ -900,7 +900,6 @@ bool IsNetCallMsg(nim::NIMMessageType msg_type, const std::string& msg_attach)
 
 std::wstring GetCustomMsg(const std::string &sender_accid, const std::string &msg_attach)
 {
-    QLOG_APP(L"sender accid: {0}, msg_attach: {1}") << sender_accid << msg_attach;
 	ui::MutiLanSupport* mls = ui::MutiLanSupport::GetInstance();
 	std::wstring show_text = mls->GetStringViaID(L"STRID_SESSION_ITEM_MSG_TYPE_CUSTOM_MSG");
 	Json::Value json;

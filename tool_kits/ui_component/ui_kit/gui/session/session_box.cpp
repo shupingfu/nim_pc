@@ -429,7 +429,7 @@ namespace nim_comp
         {
             item = new MsgBubbleText;
             Json::Value values;
-            if (Json::Reader().parse(msg.attach_, values) && values.isMember("yxReplyMsg")) {
+            if (Json::Reader().parse(msg.server_ext_, values) && values.isMember("yxReplyMsg")) {
                 auto msg_client_id = values["yxReplyMsg"]["idClient"].asString();
                 nim::MsgLog::QueryMsgByIDAysnc(
                     msg_client_id, ToWeakCallback([msg, this](nim::NIMResCode res_code, const std::string& msg_id, const nim::IMMessage& it) {
@@ -483,10 +483,8 @@ namespace nim_comp
                                             txt = "[未知消息类型]";
                                             break;
                                     }
-                                    std::string name =it.readonly_sender_nickname_;
-                                    if (name.empty())
-                                        name = it.sender_accid_;
-                                    std::string append = "\n   回复 '" + it.readonly_sender_nickname_ + ": " + txt + "'";
+                                    std::string name = it.readonly_sender_nickname_.empty() ? it.sender_accid_ : it.readonly_sender_nickname_;
+                                    std::string append = "\n   回复 '" + name + ": " + txt + "'";
                                     msg_item->SetShowText(append);
                                 }
                             }
@@ -1253,8 +1251,8 @@ namespace nim_comp
                 json["yxReplyMsg"]["scene"] =
                     reply_msg_item_.session_type_ == 0 ? "p2p" : "team";  ///< todo: 除了team，其他场景名称未知
                 json["yxReplyMsg"]["idserver"] =
-                    std::to_string(reply_msg_item_.readonly_server_id_);  ///< todo: 示例是string类型,为何要转string?
-                values[nim::kNIMMsgKeyAttach] = writer.write(json);
+                    std::to_string(reply_msg_item_.readonly_server_id_);  ///< todo: 示例是int64类型,为何要转string?
+                values[nim::kNIMMsgKeyServerExt] = writer.write(json);
             }
             json_msg = nim_cpp_wrapper_util::Json::writeString(builder, values);
         }

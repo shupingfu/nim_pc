@@ -188,6 +188,8 @@ void SessionListManager::OnQueryOnlineSessionListCallback(bool has_more, const n
 		{
 			session_data.msg_attach_ = msg_values[nim::kNIMMsgKeyAttach].asString();
 			session_data.msg_content_ = msg_values[nim::kNIMMsgKeyBody].asString();
+			if (msg_values.isMember(nim::kNIMMsgKeyServerExt))
+				session_data.server_ext_ = msg_values[nim::kNIMMsgKeyServerExt].asString();
 			session_data.msg_id_ = msg_values[nim::kNIMMsgKeyClientMsgid].asString();
 			session_data.msg_type_ = static_cast<nim::NIMMessageType>(msg_values[nim::kNIMMsgKeyType].asInt());
 			session_data.msg_status_ = static_cast<nim::NIMMsgLogStatus>(msg_values[nim::kNIMMsgKeyLocalLogStatus].asInt());

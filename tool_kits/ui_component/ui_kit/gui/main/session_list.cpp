@@ -503,8 +503,6 @@ void SessionList::OnSessionChangeCallback(nim::NIMResCode rescode, const nim::Se
         assert(0);
         return;
     }
-    QLOG_APP(L"SessionList::OnChangeCallback. command: {0}, uid: {1}, type: {2}, total unread_count: {3}, res:{4}, msgtype:{5}")
-        << data.command_ << data.id_ << data.type_ << total_unread_counts << rescode<< data.msg_type_;
     if (nim::NIMMessageType::kNIMMessageTypeCustom == data.msg_type_) {
         auto timestamp = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
         QLOG_APP(L"msg content: {0} , msg attach: {1}, msg timetag_:{2}, local time:{3}")

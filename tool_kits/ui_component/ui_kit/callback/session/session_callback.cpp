@@ -26,7 +26,6 @@ void TalkCallback::OnSendMsgCallback(const nim::SendMessageArc& arc)
 
 void TalkCallback::OnReceiveMsgCallback(const nim::IMMessage& message)
 {
-	QLOG_PRO(L"OnReceiveMsgCallback: {0} from client:{1}") << message.client_msg_id_ << message.readonly_sender_client_type_;
 	std::string id = GetSessionId(message);
 
 	if (message.feature_ == nim::kNIMMessageFeatureDefault)

@@ -191,6 +191,66 @@ void SessionItem::UpdateMsgContent(const std::string& id /*= ""*/) {
                     }
                 }
             }
+
+            //QLOG_APP(L"this is text msg:id:{0} ,context: {1}, server_ext:{2}") << id<<msg_->msg_content_<< msg_->server_ext_;///< todo
+            if (reader.parse(msg_->server_ext_, values) && values.isMember("yxReplyMsg")) {
+                QLOG_APP(L"this is reply msg");
+                auto msg_client_id = values["yxReplyMsg"]["idClient"].asString();
+                nim::MsgLog::QueryMsgByIDAysnc(
+                    msg_client_id, ToWeakCallback([show_text,this](nim::NIMResCode res_code, const std::string& msg_id, const nim::IMMessage& it) {
+                        if (res_code == nim::kNIMResSuccess) {
+                            std::string txt;
+                            switch (it.type_) {
+                                case nim::kNIMMessageTypeText: {
+                                    txt = it.content_;
+                                    break;
+                                }
+                                case nim::kNIMMessageTypeImage: {
+                                    txt = "[图片]";
+                                    break;
+                                }
+                                case nim::kNIMMessageTypeG2NetCall:
+                                case nim::kNIMMessageTypeAudio: {
+                                    txt = "[语音]";
+                                    break;
+                                }
+                                case nim::kNIMMessageTypeVideo: {
+                                    txt = "[视频]";
+                                    break;
+                                }
+                                case nim::kNIMMessageTypeLocation: {
+                                    txt = "[位置]";
+                                    break;
+                                }
+                                case nim::kNIMMessageTypeNotification: {
+                                    txt = "[通知]";
+                                    break;
+                                }
+                                case nim::kNIMMessageTypeFile: {
+                                    txt = "[文件]";
+                                    break;
+                                }
+                                case nim::kNIMMessageTypeCustom: {
+                                    txt = "[自定义消息]";
+                                    Json::Value values;
+                                    Json::Reader reader;
+                                    if (!it.attach_.empty() && reader.parse(it.attach_, values) && values.isMember("type") &&
+                                        values["type"].asInt() == 3) {
+                                        txt = "[图片]";
+                                    }
+                                    break;
+                                }
+                                default:
+                                    txt = "[未知消息类型]";
+                                    break;
+                            }
+                            std::string name = it.readonly_sender_nickname_.empty() ? it.sender_accid_ : it.readonly_sender_nickname_;
+                            std::string append = "\n   回复 '" + name + ": " + txt + "'";
+                            label_msg_->SetText(show_text + nbase::UTF8ToUTF16(append));
+                        }
+                    }));
+                return;
+            }
         }
 
         if (need_prefix && msg_->type_ == nim::kNIMSessionTypeTeam) {
