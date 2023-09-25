@@ -486,8 +486,11 @@ namespace nim_comp
                                     std::string name = it.readonly_sender_nickname_.empty() ? it.sender_accid_ : it.readonly_sender_nickname_;
                                     std::string append = "\n   回复 '" + name + ": " + txt + "'";
                                     msg_item->SetShowText(append);
+                                    msg_list_->EndDown(false, false);
+                                    return true;
                                 }
                             }
+                            return false;
                         }
                     }));
 
