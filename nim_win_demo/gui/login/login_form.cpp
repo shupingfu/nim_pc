@@ -18,6 +18,7 @@
 #include "nim_app.h"
 #include "ui_component\ui_kit\util\user.h"
 #include "app_sdk/app_sdk_generate.h"
+#include "g2_kit/component/httplib.h"
 #include <iostream>
 
 using namespace ui;
@@ -263,27 +264,17 @@ void LoginForm::StartLogin( std::string username, std::string password )
 
 	btn_login_->SetVisible(false);
 	btn_cancel_->SetVisible(true);
-    std::string url = std::string(K_APP_SERVER_ADDRESS) + std::string("/api/im/acc/login?username=") + username +
-                    std::string("&password=") + password;
-    nim_http::HttpRequest req(url, nullptr, 0, [this, url,username,password](bool ret, int code, const std::string& configs) {
-        Post2UI(this->ToWeakCallback([this, ret, code, configs, url,username,password]() {
-            QLOG_APP(L"ret:{0}, code:{1}, configs:{2}") << ret << code << configs;
-            if (ret && code == nim::kNIMResSuccess) {
-                Json::Value json_config;
-                if (Json::Reader().parse(configs, json_config) && json_config.isObject() && json_config.isMember("status")) {
-                    if (json_config["status"].asInt() == nim::kNIMResSuccess)
-                        nim_ui::LoginManager::GetInstance()->DoLogin(username, password);
-                    else
-                        OnLoginError(nim::kNIMResUidPassError);
-                } else {
-                    this->OnLoginError(nim::kNIMResServerDataError);
-                }
-            } else {
-                this->OnLoginError(code);
-            }
-        }));
-    });
-    nim_http::PostRequest(req);
+    httplib::Client cli(K_APP_SERVER_ADDRESS);
+    httplib::Params params;
+    params.emplace("username", username);
+    params.emplace("password", password);
+    auto res = cli.Post("/api/im/acc/login", params);
+    QLOG_APP(L"status: {0}, body:{1}") << res->status << res->body;
+    if (res->status == 200) {
+        nim_ui::LoginManager::GetInstance()->DoLogin(username, password);
+    } else {
+        this->OnLoginError(nim::kNIMResServerDataError);
+    }
 }
 
 void LoginForm::RegLoginManagerCallback()
