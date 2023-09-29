@@ -72,7 +72,7 @@ void SessionListManager::InvokeSelectSessionItem(const std::string &id, bool sel
 {
 	if (session_list_ == nullptr)
 		return;
-	if (!session_list_->HasSession(id) || session_list_->IsSessionSelected(id))
+	if (!session_list_->HasSession(id) || session_list_->IsSessionSelected(id) == false)
 		return;
 	session_list_->SelectSession(id, sel,trigger);
 	auto online_session_item = session_list_cloud_->GetSessionItem(id);
