@@ -619,17 +619,16 @@ namespace nim_comp
             auto iter = team_member_info_list_.find(msg.sender_accid_);
             std::wstring alias = UserService::GetInstance()->GetFriendAlias(msg.sender_accid_);
             std::string back_name;
-            if (iter->second->GetUserType() == nim::kNIMTeamUserTypeCreator || iter->second->GetUserType() == nim::kNIMTeamUserTypeManager) {
-                if(iter->second->GetUserType() == nim::kNIMTeamUserTypeManager)
-                    back_name = "  管理员";
-                else
-                    back_name = "  群主";
-                item->SetShowNameColor(L"link_red");
-            }
-
             std::string show_name = nbase::UTF16ToUTF8(UserService::GetInstance()->GetUserName(msg.sender_accid_));
             if (iter != team_member_info_list_.cend() && !iter->second->GetNick().empty())
             {
+                if (iter->second->GetUserType() == nim::kNIMTeamUserTypeCreator || iter->second->GetUserType() == nim::kNIMTeamUserTypeManager) {
+                    if (iter->second->GetUserType() == nim::kNIMTeamUserTypeManager)
+                        back_name = "  管理员";
+                    else
+                        back_name = "  群主";
+                    item->SetShowNameColor(L"link_red");
+                }
                 if (!alias.empty() && !show_name.empty()) {
                     item->SetShowName(true, back_name.empty() ? show_name : show_name + back_name);
                 } else {

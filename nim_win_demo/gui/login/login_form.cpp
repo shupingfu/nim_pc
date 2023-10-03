@@ -269,10 +269,12 @@ void LoginForm::StartLogin( std::string username, std::string password )
     params.emplace("username", username);
     params.emplace("password", password);
     auto res = cli.Post("/api/im/acc/login", params);
-    QLOG_APP(L"status: {0}, body:{1}") << res->status << res->body;
-    if (res->status == 200) {
-        nim_ui::LoginManager::GetInstance()->DoLogin(username, password);
+    if (res != nullptr) {
+        QLOG_APP(L"status: {0}, body:{1}") << res->status << res->body;
+        if (res->status == 200)
+			nim_ui::LoginManager::GetInstance()->DoLogin(username, password);
     } else {
+        QLOG_APP(L"res is nullptr");
         this->OnLoginError(nim::kNIMResServerDataError);
     }
 }
