@@ -57,7 +57,7 @@ void BroadForm::InitWindow()
 	error_2_ = (Label*) FindControl(L"error_2");
 
 	re_title_->SetLimitText(20);
-	re_content_->SetLimitText(1000);
+    re_content_->SetLimitText(10000);
 
 	btn_commit_ = (Button*) FindControl(L"commit");
 }

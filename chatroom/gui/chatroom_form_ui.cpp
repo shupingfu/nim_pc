@@ -145,7 +145,7 @@ void ChatroomForm::InitWindow()
 	room_name_ = (ui::Label*)FindControl(L"room_name");
 	online_num_ = (ui::Label*)FindControl(L"online_num");
 	bulletin_ = ((ui::RichEdit*)FindControl(L"bulletin"));
-	bulletin_->SetLimitText(300);
+	bulletin_->SetLimitText(10000);
 	btn_face_ = (ui::CheckBox*)FindControl(L"btn_face");
 
 	list_tab_ = (ui::TabBox*)FindControl(L"list_tab");
