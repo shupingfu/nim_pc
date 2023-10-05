@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Window>
     <Box name="msg_text" width="auto" height="auto" bkimage="file='../session/bubble_right.png' corner='15,15,25,15'">
+		<RichEdit name="reply" margin="1,7,1,9" font="1" normaltextcolor="white" menu="false" 
+                  readonly="true" multiline="false" vscrollbar="false" autovscroll="false"/>
         <RichEdit name="text" margin="15,7,20,9" font="2" normaltextcolor="white" menu="true" 
                   readonly="true" multiline="true" vscrollbar="false" autovscroll="false"/>
     </Box>
