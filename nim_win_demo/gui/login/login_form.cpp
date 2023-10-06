@@ -273,6 +273,8 @@ void LoginForm::StartLogin( std::string username, std::string password )
         QLOG_APP(L"status: {0}, body:{1}") << res->status << res->body;
         if (res->status == 200)
 			nim_ui::LoginManager::GetInstance()->DoLogin(username, password);
+        else
+            this->OnLoginError(nim::kNIMResUidPassError);
     } else {
         QLOG_APP(L"res is nullptr");
         this->OnLoginError(nim::kNIMResServerDataError);
