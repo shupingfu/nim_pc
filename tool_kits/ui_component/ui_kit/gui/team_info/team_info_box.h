@@ -98,6 +98,8 @@ namespace nim_comp
 		*/
 		bool OnInviteUesrBtnClick(ui::EventArgs *param);
 
+		bool SearchEditChange(ui::EventArgs* msg);
+
 		/**
 		* 响应成员邀请完毕的回调函数
 		* @param[in] friend_list 邀请的好友列表
@@ -289,6 +291,7 @@ namespace nim_comp
 		ui::VirtualTileBox* tile_box_;
 		ui::RichEdit* re_team_name_;
 		ui::RichEdit* re_team_intro_;
+		ui::RichEdit* search_edit_;
 		ui::Button* invitebtn_;
 		ui::Button* btn_dismiss_;
 		ui::Button* btn_quit_;
@@ -301,6 +304,7 @@ namespace nim_comp
 		nim::TeamInfo team_info_;
 		std::map<std::string, std::shared_ptr<nim::TeamMemberProperty>> team_member_list_;
 		std::vector<std::shared_ptr<nim::TeamMemberProperty>> team_member_sort_list_;
+        std::vector<std::shared_ptr<nim::TeamMemberProperty>> team_member_sort_list_backup_;
 		nim::TeamMemberProperty my_property_;
 		AutoUnregister unregister_cb;
 		std::function<void(const std::wstring& title)> taskbar_title_function_;

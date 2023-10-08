@@ -209,6 +209,45 @@ void TeamInfoBox::OnModifyHeaderComplete(const std::string& id, const std::strin
 	//nim::Team::UpdateTeamInfoAsync(tid_, tinfo, nbase::Bind(&TeamCallback::OnTeamEventCallback, std::placeholders::_1));
 }
 
+bool TeamInfoBox::SearchEditChange(ui::EventArgs* msg) {
+        UTF8String search_key = search_edit_->GetUTF8Text();
+        bool has_serch_key = !search_key.empty();
+        if (has_serch_key) {
+                std::list<nim::TeamMemberProperty> search_result{};
+                for (const auto& tm_info : team_member_sort_list_backup_) {
+                        std::string nick_name_ = tm_info->GetNick();
+                        std::string account_id_ = tm_info->GetAccountID();
+                        if (nick_name_.empty()) {
+                            nick_name_ = nbase::UTF16ToUTF8(UserService::GetInstance()->GetUserName(account_id_));
+                        }
+                        // 查找搜索结果
+                        if (nick_name_.find(search_key) != std::wstring::npos || account_id_.find(search_key) != std::wstring::npos) {
+                            search_result.push_back(*tm_info.get());
+                        }
+                }
+
+                // 填充数据
+                team_member_sort_list_.clear();
+                if (search_result.size() > 255)
+                        team_member_sort_list_.reserve(search_result.size());
+                for (auto& it : search_result) {
+                        if (IsTeamMemberType(it.GetUserType())) {
+                            team_member_sort_list_.emplace_back(std::make_shared<nim::TeamMemberProperty>(it));
+                        }
+                }
+                RefreshMemberList(true);
+        } else {
+                if (team_member_sort_list_.size() != team_member_sort_list_backup_.size()) {
+                        team_member_sort_list_.clear();
+                        team_member_sort_list_.reserve(team_member_sort_list_backup_.size());
+                        for (auto& it : team_member_sort_list_backup_)
+                            team_member_sort_list_.emplace_back(it);
+                        RefreshMemberList(false);
+				}
+		}
+        return true;
+}
+
 bool TeamInfoBox::OnInviteUesrBtnClick(ui::EventArgs *param)
 {
 	std::string wnd_id;
@@ -283,14 +322,20 @@ void TeamInfoBox::AddInviteButton()
 {	
 	ui::HBox* box = new ui::HBox();
 	ui::GlobalManager::FillBoxWithCache(box, L"team_info/inviteicon.xml");	
+	search_edit_ = (ui::RichEdit*)box->FindSubControl(L"search_edit");
+    search_edit_->AttachTextChange(nbase::Bind(&TeamInfoBox::SearchEditChange, this, std::placeholders::_1));
 	invitebtn_ = (ui::Button*)box->FindSubControl(L"InviteBtn");
 	invitebtn_->AttachClick(nbase::Bind(&TeamInfoBox::OnInviteUesrBtnClick, this, std::placeholders::_1));
 	if (!view_mode_)
 	{
+		QLOG_APP(L"view_mode false");
 		ui::Box* user_list_container = (ui::Box*)FindSubControl(L"user_list_container");
+        search_edit_->SetVerAlignType(ui::VerAlignType::kVerAlignBottom);
+        search_edit_->SetHorAlignType(ui::HorAlignType::kHorAlignRight);
 		invitebtn_->SetVerAlignType(ui::VerAlignType::kVerAlignBottom);
 		invitebtn_->SetHorAlignType(ui::HorAlignType::kHorAlignRight);
 		user_list_container->Add(invitebtn_);
+        user_list_container->Add(search_edit_);
 	}	
 }
 
@@ -300,10 +345,12 @@ void TeamInfoBox::OnGetTeamMembers(const std::string& team_id, int count, const 
 	team_member_list_.clear();
 	team_member_sort_list_.clear();
 	team_member_sort_list_.reserve(team_member_list.size());
+    team_member_sort_list_backup_.reserve(team_member_list.size());
 	for (auto it : team_member_list)
 	{
 		team_member_list_.insert(std::make_pair(it.GetAccountID(),std::make_shared<nim::TeamMemberProperty>(it)));
 		team_member_sort_list_.emplace_back(team_member_list_[it.GetAccountID()]);
+        team_member_sort_list_backup_.emplace_back(team_member_list_[it.GetAccountID()]);
 	}
 	auto member = team_member_list_[LoginManager::GetInstance()->GetAccount()];
 	if(member != nullptr)
