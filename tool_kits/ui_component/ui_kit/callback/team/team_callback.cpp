@@ -202,12 +202,19 @@ void TeamCallback::UITeamEventCallback(const nim::TeamEvent& info, const std::st
 		{
 			if (info.notification_id_ == nim::kNIMNotificationIdTeamKick)
 			{
-				QLOG_APP(L"UITeamEventCallback Kick attach: {0}") << info.attach_;
+				QLOG_APP(L"UITeamEventCallback Kick attach: {0}, tid:{1}") << info.attach_ << tid;
 				TeamService::GetInstance()->InvokeRemoveTeamMemberList(tid, info.ids_);
+                std::string remove_users_name;
 				for (auto& id : info.ids_)
 				{
+                    if (remove_users_name.size())
+                        remove_users_name.append(", ").append(id);
+                    else
+                        remove_users_name = id;
 					TeamService::GetInstance()->InvokeRemoveTeamMember(tid, id);
 				}				
+                std::wstring toast = L"移出群员: " + nbase::UTF8ToUTF16(remove_users_name);
+                nim_ui::ShowToast(toast, 5000);
 				if (std::find_if(info.ids_.begin(), info.ids_.end(), [](const std::string& uid){
 					return LoginManager::GetInstance()->IsEqual(uid);
 				}) != info.ids_.end())
