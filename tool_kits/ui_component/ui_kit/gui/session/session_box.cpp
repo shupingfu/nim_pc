@@ -341,7 +341,8 @@ namespace nim_comp
 
         if (at_end && SessionManager::GetInstance()->IsSessionBoxActive(session_id_))
         {
-            msg_list_->EndDown(true, false);
+            //msg_list_->EndDown(true, false);
+            // 当前会话窗口已是开启,则有可能手动滚动查看消息，没必要直接滚动到底
         }
 
         if (session_type_ == nim::kNIMSessionTypeTeam &&
@@ -486,7 +487,6 @@ namespace nim_comp
                                     std::string name = it.readonly_sender_nickname_.empty() ? it.sender_accid_ : it.readonly_sender_nickname_;
                                     std::string append = "\n   回复 '" + name + ": " + txt + "'";
                                     msg_item->SetShowText(append);
-                                    msg_list_->EndDown(false, false);
                                     return true;
                                 }
                             }
