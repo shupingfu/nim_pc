@@ -89,9 +89,8 @@
       <Button class="btn_global_green_80x30" name="confirm" valign="center" textid="STRING_OK"/>
       <Control width="10"/>
       <Button class="btn_global_green_80x30" name="quit" valign="center" textid="STRID_TEAM_INFO_QUIT_TEAM"/>
-      <Control width="10"/>
-      <Button class="btn_global_green_80x30" name="dismiss" valign="center" textid="STRID_TEAM_INFO_DISSOLVE_TEAM"/>
-      <Control />
+      <Control width="stretch"/>
+      <Button class="btn_global_green_80x30" name="dismiss" valign="center" width="40"  height="25"  font="5" textid="STRID_TEAM_INFO_DISSOLVE_TEAM" tooltiptextid="STRID_TEAM_INFO_DISSOLVE_TEAM"/>
     </HBox>
   </VBox>
 
