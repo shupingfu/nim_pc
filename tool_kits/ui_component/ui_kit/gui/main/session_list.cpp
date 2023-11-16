@@ -369,7 +369,7 @@ void SessionList::ResetUnreadCount(const std::string& id) {
         SessionItem* item = dynamic_cast<SessionItem*>(session_list_->FindSubControl(wid));
         if (item) {
             if (item->ResetUnread()) {
-                session_list_->Refresh();
+                //session_list_->Refresh(); ///< 点击会导致重新刷新会话列表的UI变动,目前屏蔽后暂时未发现负面效果.
                 InvokeUnreadCountChange();
             }
         }
