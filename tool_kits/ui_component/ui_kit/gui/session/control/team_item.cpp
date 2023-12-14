@@ -49,7 +49,7 @@ namespace nim_comp
 
 	bool TeamItem::OnHeadImageClick(const std::string& uid, ui::EventArgs*)
 	{
-		ProfileForm::ShowProfileForm(uid);
+		ProfileForm::ShowProfileForm(uid,this->member_info_.GetUserType());
 		return true;
 	}
 

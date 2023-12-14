@@ -287,6 +287,7 @@ private:
 public:
 	std::string	tid_;
 	nim::NIMTeamUserType my_team_user_type_;
+    nim::NIMTeamUserType team_user_type_ = nim::kNIMTeamUserTypeNomal;
 	bool have_mute_right_ = false;
 	std::function<void(const std::wstring& title)> taskbar_title_function_;
 	std::function<void(UINT nRet)> close_function_;

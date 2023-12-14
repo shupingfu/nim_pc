@@ -708,6 +708,9 @@ namespace nim_comp
 
 		std::wstring account = nbase::StringPrintf(ui::MutiLanSupport::GetInstance()->GetStringViaID(L"STRID_PROFILE_FORM_ACCOUNT_").c_str(), nbase::UTF8ToUTF16(m_uinfo.GetAccId()).c_str());
 		user_id_label->SetText(account);//帐号
+        QLOG_APP(L"user type:{0}") << team_user_type_;
+        if (nim::kNIMTeamUserTypeCreator != this->team_user_type_ && nim::kNIMTeamUserTypeManager != this->team_user_type_)
+			user_id_label->SetVisible(false);
 
 		if (m_uinfo.ExistValue(nim::kUserNameCardKeyBirthday))
 			birthday_label->SetText(nbase::UTF8ToUTF16(m_uinfo.GetBirth())); //生日
