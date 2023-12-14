@@ -10,9 +10,10 @@ class ProfileForm : public WindowEx,public IProfileUI
 {
 public:
 	static ProfileForm *ShowProfileForm(UTF8String uid, bool is_robot = false);
-    static ProfileForm* ShowProfileForm(UTF8String uid, nim::NIMTeamUserType type);
+    static ProfileForm* ShowProfileForm(UTF8String uid, nim::NIMTeamUserType obj_type);
 	static void ShowProfileForm(UTF8String uid, bool is_robot,bool inplugin_box);
 	static ProfileForm *ShowProfileForm(UTF8String tid, UTF8String uid, nim::NIMTeamUserType my_type);
+    static ProfileForm* ShowProfileForm(UTF8String tid, UTF8String uid, nim::NIMTeamUserType my_type, nim::NIMTeamUserType obj_type);
 
 private:
 	ProfileForm();
@@ -64,6 +65,6 @@ public:
 	std::string	tid_;
 	std::string uid_;
 	nim::NIMTeamUserType my_team_user_type_;
-    nim::NIMTeamUserType team_user_type_;
+    nim::NIMTeamUserType team_user_type_ = nim::kNIMTeamUserTypeNomal;
 };
 }

@@ -4,6 +4,14 @@ MESSAGE("############# nim_win_demo ##############")
 
 SET(CMAKE_CXX_STANDARD 11)
 
+option(PROD_ENV "PROD1 PROD2 PROD3 TEST1")
+if(NOT PROD_ENV)
+	message(FATAL_ERROR "Must Define PROD ENV")
+else()
+	add_definitions(-D${PROD_ENV})
+endif()
+
+
 IF (NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
     MESSAGE(STATUS "No CMAKE_BUILD_TYPE selected, defaulting to ${CMAKE_BUILD_TYPE}")
@@ -33,11 +41,17 @@ SET(GROUP_UI_COMPONENTS "ui_components")
 SET(RELEASE_OUTPUT_7Z_FILE "${CMAKE_BINARY_DIR}/release.7z")
 STRING(REPLACE "/" "\\\\" RELEASE_OUTPUT_7Z_FILE_WIN ${RELEASE_OUTPUT_7Z_FILE})
 
-SET(NIM_CROSS_PLATFORM_SDK_FILE_NAME "nim-win32-ia32-9-9-0-383-build-1750145.tar.gz")
+#SET(NIM_CROSS_PLATFORM_SDK_FILE_NAME "nim-win32-ia32-9-9-0-383-build-1750145.tar.gz")
+#SET(DEBUG_THIRD_PARTY_LIBS "http://yx-web.nos.netease.com/package/1619605746/NIM_Windows_Demo_Build_Binaries_Debug.zip")
+#SET(RELEASE_THIRD_PARTY_LIBS "http://yx-web.nos.netease.com/package/1619605768/NIM_Windows_Demo_Build_Binaries_Release.zip")
+#SET(NIM_CROSS_PLATFORM_SDK_URL "https://yx-web-nosdn.netease.im/package/${NIM_CROSS_PLATFORM_SDK_FILE_NAME}")
+#SET(NERTC_SDK_URL "http://yx-web.nos.netease.com/package/1618217725/NERtc_Windows_SDK_v4.1.1.zip")
+
+SET(NIM_CROSS_PLATFORM_SDK_FILE_NAME "package_nim-win32-ia32-9-9-0-383-build-1750145.tar.gz")
 SET(DEBUG_THIRD_PARTY_LIBS "http://yx-web.nos.netease.com/package/1619605746/NIM_Windows_Demo_Build_Binaries_Debug.zip")
-SET(RELEASE_THIRD_PARTY_LIBS "http://yx-web.nos.netease.com/package/1619605768/NIM_Windows_Demo_Build_Binaries_Release.zip")
-SET(NIM_CROSS_PLATFORM_SDK_URL "https://yx-web-nosdn.netease.im/package/${NIM_CROSS_PLATFORM_SDK_FILE_NAME}")
-SET(NERTC_SDK_URL "http://yx-web.nos.netease.com/package/1618217725/NERtc_Windows_SDK_v4.1.1.zip")
+SET(RELEASE_THIRD_PARTY_LIBS "https://nimwin.oss-cn-beijing.aliyuncs.com/package_1619605768_NIM_Windows_Demo_Build_Binaries_Release.zip")
+SET(NIM_CROSS_PLATFORM_SDK_URL "https://nimwin.oss-cn-beijing.aliyuncs.com/${NIM_CROSS_PLATFORM_SDK_FILE_NAME}")
+SET(NERTC_SDK_URL "https://nimwin.oss-cn-beijing.aliyuncs.com/package_1618217725_NERtc_Windows_SDK_v4.1.1.zip")
 
 PROJECT(nim_win_demo)
 

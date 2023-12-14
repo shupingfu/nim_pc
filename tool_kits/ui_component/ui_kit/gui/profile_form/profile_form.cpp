@@ -14,7 +14,7 @@ void ProfileForm::ShowProfileForm(UTF8String uid, bool is_robot, bool inplugin_b
 		ShowProfileForm(uid, is_robot);
 }
 
-ProfileForm* ProfileForm::ShowProfileForm(UTF8String uid, nim::NIMTeamUserType type) {
+ProfileForm* ProfileForm::ShowProfileForm(UTF8String uid, nim::NIMTeamUserType obj_type) {
     ProfileForm* form = (ProfileForm*)WindowsManager::GetInstance()->GetWindow(kClassName, kClassName);
     if (form != NULL && form->GetNameCard().GetAccId().compare(uid) == 0)  // 当前已经打开的名片正是希望打开的名片
         ; // 直接显示
@@ -22,7 +22,7 @@ ProfileForm* ProfileForm::ShowProfileForm(UTF8String uid, nim::NIMTeamUserType t
         if (form != NULL && form->GetNameCard().GetAccId().compare(uid) != 0)  // 当前已经打开的名片不是希望打开的名片
             ::DestroyWindow(form->m_hWnd);                                     // 关闭重新创建
         form = new ProfileForm();
-        form->team_user_type_ = type;
+        form->team_user_type_ = obj_type;
         form->Create(NULL, L"", WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX, 0L);
 
         // 获取用户信息
@@ -62,6 +62,30 @@ ProfileForm * ProfileForm::ShowProfileForm(UTF8String uid, bool is_robot/* = fal
 	}
 	form->__super::ActiveWindow();
 	return form;
+}
+
+ProfileForm* ProfileForm::ShowProfileForm(UTF8String tid, UTF8String uid, nim::NIMTeamUserType my_type, nim::NIMTeamUserType obj_type) {
+    ProfileForm* form = (ProfileForm*)WindowsManager::GetInstance()->GetWindow(kClassName, kClassName);
+    if (form != NULL && form->GetNameCard().GetAccId().compare(uid) == 0 && form->tid_ == tid)  // 当前已经打开的名片正是希望打开的名片
+        ; // 直接显示
+    else {
+        if (form != NULL && (form->GetNameCard().GetAccId().compare(uid) != 0 || form->tid_ != tid))  // 当前已经打开的名片不是希望打开的名片
+                ::DestroyWindow(form->m_hWnd);                                                        // 关闭重新创建
+        form = new ProfileForm(tid, uid, my_type);
+        form->team_user_type_ = obj_type;
+        form->Create(NULL, L"", WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX, 0L);
+
+        // 获取用户信息
+        nim::UserNameCard info;
+        UserService::GetInstance()->GetUserInfo(uid, info);
+        form->InitUserInfo(info);
+    }
+    if (!::IsWindowVisible(form->m_hWnd)) {
+        ::ShowWindow(form->m_hWnd, SW_SHOW);
+        form->CenterWindow();
+    }
+    form->__super::ActiveWindow();
+    return form;
 }
 
 ProfileForm *ProfileForm::ShowProfileForm(UTF8String tid, UTF8String uid, nim::NIMTeamUserType my_type)

@@ -352,8 +352,12 @@ bool SessionBox::Notify(ui::EventArgs* param)
 				}
 				else
 				{
-					nim::NIMTeamUserType type = team_member_info_list_[LoginManager::GetInstance()->GetAccount()]->GetUserType();
-					ProfileForm::ShowProfileForm(session_id_, md.sender_accid_, type);
+					nim::NIMTeamUserType my_type = team_member_info_list_[LoginManager::GetInstance()->GetAccount()]->GetUserType();
+                    nim::NIMTeamUserType obj_type = nim::kNIMTeamUserTypeNomal;
+                    auto obj_it = team_member_info_list_.find(md.sender_accid_);
+                    if (obj_it != team_member_info_list_.end())
+                        obj_type = obj_it->second->GetUserType();
+                    ProfileForm::ShowProfileForm(session_id_, md.sender_accid_, my_type, obj_type);
 				}
 			}
 			else
