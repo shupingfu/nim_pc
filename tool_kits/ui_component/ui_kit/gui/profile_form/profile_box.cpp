@@ -714,6 +714,7 @@ namespace nim_comp
         if (nim::kNIMTeamUserTypeCreator != this->team_user_type_ && nim::kNIMTeamUserTypeManager != this->team_user_type_) {
                 user_id_label->SetVisible(false);
                 add_friend->SetVisible(false);
+                start_chat->SetVisible(false);
         }
 #else
 #pragma message("build for other env-")
