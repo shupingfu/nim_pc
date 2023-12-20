@@ -620,7 +620,7 @@ namespace nim_comp
             std::wstring alias = UserService::GetInstance()->GetFriendAlias(msg.sender_accid_);
             std::string back_name;
             std::string show_name = nbase::UTF16ToUTF8(UserService::GetInstance()->GetUserName(msg.sender_accid_));
-            if (iter != team_member_info_list_.cend() && !iter->second->GetNick().empty())
+            if (iter != team_member_info_list_.cend())
             {
                 if (iter->second->GetUserType() == nim::kNIMTeamUserTypeCreator || iter->second->GetUserType() == nim::kNIMTeamUserTypeManager) {
                     if (iter->second->GetUserType() == nim::kNIMTeamUserTypeManager)
@@ -632,7 +632,10 @@ namespace nim_comp
                 if (!alias.empty() && !show_name.empty()) {
                     item->SetShowName(true, back_name.empty() ? show_name : show_name + back_name);
                 } else {
-                    item->SetShowName(true, back_name.empty() ? iter->second->GetNick() : iter->second->GetNick() + back_name);  //显示群名片
+                    if (iter->second->GetNick().empty())
+                        item->SetShowName(true, back_name);
+                    else
+                        item->SetShowName(true, back_name.empty() ? iter->second->GetNick() : iter->second->GetNick() + back_name);  // 显示群名片
                 }
             }
             else
