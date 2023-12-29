@@ -301,9 +301,11 @@ bool SessionBox::Notify(ui::EventArgs* param)
                         btn_reply_msg_cancel_->SetUTF8Text(msg.sender_accid_ + ": " + txt);
                         btn_reply_msg_cancel_->SetVisible(true);
                         reply_msg_item_ = msg;
+					} else {
+                        QLOG_WAR(L"not find msg");
+                        reply_msg_item_.client_msg_id_.clear();
 					}
-					else
-						QLOG_APP(L"not find msg");
+					
 						//OnMenuRetweetMessage(msg);
 			}));
 		}
