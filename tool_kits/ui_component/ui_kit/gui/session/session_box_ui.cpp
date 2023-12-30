@@ -244,8 +244,11 @@ bool SessionBox::Notify(ui::EventArgs* param)
 		{
 			nim::MsgLog::QueryMsgByIDAysnc(md.client_msg_id_, ToWeakCallback(
 				[this](nim::NIMResCode res_code, const std::string& msg_id, const nim::IMMessage& msg){
-				if (res_code == nim::kNIMResSuccess)
-					OnMenuRetweetMessage(msg);
+				if (res_code == nim::kNIMResSuccess) {
+                    sel_msg_item_ = msg;
+                    OnMenuRetweetMessage(msg);
+				}else
+					QLOG_APP(L"res code: {0}") << res_code;
 			}));			
 		}
 		else if (param->wParam == BET_REPLY) {
@@ -300,10 +303,10 @@ bool SessionBox::Notify(ui::EventArgs* param)
                         }
                         btn_reply_msg_cancel_->SetUTF8Text(msg.sender_accid_ + ": " + txt);
                         btn_reply_msg_cancel_->SetVisible(true);
-                        reply_msg_item_ = msg;
+                        sel_msg_item_ = msg;
 					} else {
                         QLOG_WAR(L"not find msg");
-                        reply_msg_item_.client_msg_id_.clear();
+                        sel_msg_item_.client_msg_id_.clear();
 					}
 					
 						//OnMenuRetweetMessage(msg);
@@ -1063,7 +1066,6 @@ void SessionBox::OnSelectedRetweetList(nim::IMMessage msg, const std::list<std::
 		nim::Talk::ParseIMMessage(msg, sending_msg);
 		sending_msg.sender_accid_ = LoginManager::GetInstance()->GetAccount();
 		sending_msg.msg_setting_.team_msg_ack_sent_ = BS_FALSE;
-
 		SessionBox *form = SessionManager::GetInstance()->OpenSessionBox(receiver_accid, receiver_type);
 		if (form)
 		{
@@ -1074,13 +1076,13 @@ void SessionBox::OnSelectedRetweetList(nim::IMMessage msg, const std::list<std::
 
 	for (auto &it : friend_list)
 	{
-		std::string send_msg = nim::Talk::CreateRetweetMessage(msg.ToJsonString(false), nim::Tool::GetUuid(), nim::kNIMSessionTypeP2P, it, msg.msg_setting_, 1000 * nbase::Time::Now().ToTimeT());
+		std::string send_msg = nim::Talk::CreateRetweetMessage(sel_msg_item_.ToJsonString(false), nim::Tool::GetUuid(), nim::kNIMSessionTypeP2P, it, sel_msg_item_.msg_setting_, 1000 * nbase::Time::Now().ToTimeT());
 		retweet_cb(send_msg, it, nim::kNIMSessionTypeP2P);
 	}
 
 	for (auto &it : team_list)
 	{
-		std::string send_msg = nim::Talk::CreateRetweetMessage(msg.ToJsonString(false), nim::Tool::GetUuid(), nim::kNIMSessionTypeTeam, it, msg.msg_setting_, 1000 * nbase::Time::Now().ToTimeT());
+		std::string send_msg = nim::Talk::CreateRetweetMessage(sel_msg_item_.ToJsonString(false), nim::Tool::GetUuid(), nim::kNIMSessionTypeTeam, it, sel_msg_item_.msg_setting_, 1000 * nbase::Time::Now().ToTimeT());
 		retweet_cb(send_msg, it, nim::kNIMSessionTypeTeam);
 	}
 }

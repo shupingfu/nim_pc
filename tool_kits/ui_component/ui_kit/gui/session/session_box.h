@@ -1330,6 +1330,6 @@ private:
 	AutoUnregister	unregister_cb;
 	std::map< std::string, std::list<StdClosure>> closure_befor_item_add_;
 	std::list<nim::IMMessage> new_msgs_need_to_send_mq_;
-    nim::IMMessage reply_msg_item_; //要回复的消息对象.
+    nim::IMMessage sel_msg_item_; //选中的的消息对象.
 };
 }

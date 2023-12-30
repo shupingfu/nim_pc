@@ -1247,17 +1247,17 @@ namespace nim_comp
             builder["emitUTF8"] = true;
             if (btn_reply_msg_cancel_->IsVisible()) {
                 btn_reply_msg_cancel_->SetVisible(false);
-                if (!reply_msg_item_.client_msg_id_.empty()) {
+                if (!sel_msg_item_.client_msg_id_.empty()) {
                     Json::FastWriter writer;
                     Json::Value json;
-                    json["yxReplyMsg"]["idClient"] = reply_msg_item_.client_msg_id_;
+                    json["yxReplyMsg"]["idClient"] = sel_msg_item_.client_msg_id_;
                     json["yxReplyMsg"]["from"] = LoginManager::GetInstance()->GetAccount();
                     json["yxReplyMsg"]["to"] = msg.receiver_accid_;
-                    json["yxReplyMsg"]["time"] = reply_msg_item_.timetag_;
-                    json["yxReplyMsg"]["scene"] = reply_msg_item_.session_type_ == 0 ? "p2p" : "team";  ///< todo: 除了team，其他场景名称未知
-                    json["yxReplyMsg"]["idserver"] = std::to_string(reply_msg_item_.readonly_server_id_);  ///< todo: 示例是int64类型,为何要转string?
+                    json["yxReplyMsg"]["time"] = sel_msg_item_.timetag_;
+                    json["yxReplyMsg"]["scene"] = sel_msg_item_.session_type_ == 0 ? "p2p" : "team";  ///< todo: 除了team，其他场景名称未知
+                    json["yxReplyMsg"]["idserver"] = std::to_string(sel_msg_item_.readonly_server_id_);  ///< todo: 示例是int64类型,为何要转string?
                     values[nim::kNIMMsgKeyServerExt] = writer.write(json);
-                    reply_msg_item_.client_msg_id_.clear(); ///< 发送后清理此次消息
+                    sel_msg_item_.client_msg_id_.clear();  ///< 发送后清理此次消息
                 }
             }
             json_msg = nim_cpp_wrapper_util::Json::writeString(builder, values);
