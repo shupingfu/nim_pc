@@ -722,7 +722,7 @@ void SessionBox::OnBtnSend()
 			}
 			else
 			{
-				ShowMsgBox(this->GetWindow()->GetHWND(), MsgboxCallback(), L"STRID_SESSION_SUPPORT_15MB");
+				ShowMsgBox(this->GetWindow()->GetHWND(), MsgboxCallback(), L"STRID_SESSION_SUPPORT_2GB");
 			}
 		}
 		break;
@@ -817,7 +817,7 @@ void SessionBox::OnFileSelected(BOOL ret, std::wstring file_path)
 	}
 	else
 	{
-		ShowMsgBox(this->GetWindow()->GetHWND(), MsgboxCallback(), use_p2p_transfer_file_ ? L"STRID_SESSION_SUPPORT_2GB" : L"STRID_SESSION_SUPPORT_15MB");
+		ShowMsgBox(this->GetWindow()->GetHWND(), MsgboxCallback(), L"STRID_SESSION_SUPPORT_2GB");
 	}
 }
 

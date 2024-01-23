@@ -12,7 +12,7 @@ using namespace nim_comp;
 bool CheckFileSize(const std::wstring &src)
 {
 	int64_t sz = nbase::GetFileSize(src);
-	if (sz > 15 * 1024 * 1024 || sz <= 0)
+	if (sz > 2 * 1024 * 1024 * 1024 || sz <= 0)
 	{
 		return false;
 	}
@@ -48,7 +48,7 @@ void ChatroomForm::OnDropFile(HDROP hDrop)
 	}
 	if (large_file)
 	{
-		ShowMsgBox(m_hWnd, MsgboxCallback(), L"STRID_CHATROOM_SUPPORT_15MB");
+		ShowMsgBox(m_hWnd, MsgboxCallback(), L"STRID_SESSION_SUPPORT_2GB");
 	}
 	//目前是通过RichEdit的拖曳来处理
 	//DragFinish(hDrop);

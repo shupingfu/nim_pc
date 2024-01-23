@@ -61,7 +61,7 @@ void SessionBox::OnDropFile(HDROP hDrop)
 	}
 	if (large_file)
 	{
-		ShowMsgBox(this->GetWindow()->GetHWND(), MsgboxCallback(), L"STRID_SESSION_SUPPORT_15MB");
+		ShowMsgBox(this->GetWindow()->GetHWND(), MsgboxCallback(), L"STRID_SESSION_SUPPORT_2GB");
 	}
 
 }

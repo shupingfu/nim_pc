@@ -1451,9 +1451,10 @@ void SessionBox::SendVideo(const std::string& file_path, const std::string& file
         int64_t sz = nbase::GetFileSize(src);
 
         int64_t p2p_file_limit = 2.0 * 1024 * 1024 * 1024;
-        int64_t nos_file_limit = LoginManager::GetInstance()->GetFileSizeLimit() * 1024 * 1024;
+        //int64_t nos_file_limit = LoginManager::GetInstance()->GetFileSizeLimit() * 1024 * 1024;
 
-        if (sz > (use_p2p_transfer_file_ ? p2p_file_limit : nos_file_limit) || sz <= 0)
+        //if (sz > (use_p2p_transfer_file_ ? p2p_file_limit : nos_file_limit) || sz <= 0)
+        if (sz > p2p_file_limit || sz <= 0)
         {
             return false;
         }
