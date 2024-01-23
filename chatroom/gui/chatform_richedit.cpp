@@ -11,6 +11,8 @@ using namespace nim_comp;
 
 bool CheckFileSize(const std::wstring &src)
 {
+    return true; ///< 根据需求目前不做文件限制
+
 	int64_t sz = nbase::GetFileSize(src);
 	if (sz > 2 * 1024 * 1024 * 1024 || sz <= 0)
 	{

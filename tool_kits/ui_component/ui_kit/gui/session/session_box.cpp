@@ -1448,6 +1448,8 @@ void SessionBox::SendVideo(const std::string& file_path, const std::string& file
 
     bool SessionBox::CheckFileSize(const std::wstring &src)
     {
+        return true; ///< 根据需求目前不做文件限制
+
         int64_t sz = nbase::GetFileSize(src);
 
         int64_t p2p_file_limit = 2.0 * 1024 * 1024 * 1024;
