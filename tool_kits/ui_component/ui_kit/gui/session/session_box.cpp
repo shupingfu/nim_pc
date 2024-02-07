@@ -629,8 +629,11 @@ namespace nim_comp
                         back_name = "  群主";
                     item->SetShowNameColor(L"link_red");
                 }
-                if (!alias.empty() && !show_name.empty()) {
+
+                if (!show_name.empty()) {
                     item->SetShowName(true, back_name.empty() ? show_name : show_name + back_name);
+                } else if (!alias.empty()) {
+                    item->SetShowName(true, back_name.empty() ? nbase::UTF16ToUTF8(alias) : nbase::UTF16ToUTF8(alias) + back_name);
                 } else {
                     if (iter->second->GetNick().empty())
                         item->SetShowName(true, back_name);
