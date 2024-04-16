@@ -1051,6 +1051,7 @@ void SessionBox::OnMenuRetweetMessage(const nim::IMMessage &msg)
 	}
 	else
 	{
+        contact_select_form->Reload(ContactSelectForm::kRetweetMessage, std::list<UTF8String>(),nbase::Bind(&SessionBox::OnSelectedRetweetList, this, msg, std::placeholders::_1, std::placeholders::_2), true);
 		contact_select_form->ActiveWindow();
 	}
 }

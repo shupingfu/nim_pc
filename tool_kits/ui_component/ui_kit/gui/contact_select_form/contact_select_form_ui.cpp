@@ -41,8 +41,32 @@ ContactSelectForm::ContactSelectForm(const UTF8String& uid_or_tid,
 	unregister_cb.Add(TeamService::GetInstance()->RegChangeTeamName(change_team_name_cb));
 }
 
-ContactSelectForm::~ContactSelectForm()
-{
+ContactSelectForm::~ContactSelectForm() {
+    exclude_ids_.clear();
+    tree_node_ver_.clear();
+}
+
+void ContactSelectForm::Reload(const UTF8String& uid_or_tid,
+	const std::list<UTF8String>& exclude_ids,
+	const SelectedCompletedCallback& completedCallback,
+	bool need_select_group,
+                               bool is_multi_vchat) {
+    uid_or_tid_ = uid_or_tid;
+    exclude_ids_ = exclude_ids;
+    completedCallback_ = completedCallback;
+    need_select_group_ = need_select_group;
+    is_multi_vchat_ = is_multi_vchat;
+    selected_user_list_->RemoveAll();
+	for (auto& it : tree_node_ver_) {
+		for (int i = 0; i < it->GetCount(); i++) {
+            ContactListItemUI* item = (ContactListItemUI*)it->GetItemAt(i);
+			if (item) {
+                UTF8String id = item->GetUTF8DataID();
+                ui::CheckBox* checkbox = (ui::CheckBox*)item->FindSubControl(L"checkbox");
+                checkbox->Selected(false, true);
+			}
+		}
+	}
 }
 
 std::wstring ContactSelectForm::GetSkinFolder()

@@ -190,6 +190,12 @@ public:
 	*/
 	virtual void InitWindow() override;
 
+	void Reload(const UTF8String& uid_or_tid,
+                    const std::list<UTF8String>& exclude_ids,
+                    const SelectedCompletedCallback& completedCallback,
+                    bool need_select_group = false,
+                    bool is_multi_vchat = false);
+
 private:
 	/**
 	* 添加一个联系人分类到联系人列表、默认设置为隐藏状态
