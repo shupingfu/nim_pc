@@ -46,6 +46,8 @@
 
         <HBox bkcolor="bk_wnd_darkcolor" height="50">
             <Control />
+			<Button class="btn_global_white_80x30" name="select_all" valign="center" textid="STRID_SESSION_SELECT_ALL"/>
+			<Control width="10"/>
             <Button class="btn_global_white_80x30" name="cancel" valign="center" textid="STRING_NO"/>
             <Control width="10"/>
             <Button class="btn_global_green_80x30" name="confirm" valign="center" textid="STRING_OK"/>

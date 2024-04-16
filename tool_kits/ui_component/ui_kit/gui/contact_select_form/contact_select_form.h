@@ -292,6 +292,13 @@ private:
 	bool OnBtnCancelClick(ui::EventArgs* param);
 
 	/**
+    * 全选用户
+    * @param[in] param 消息的相关信息
+    * @return bool true 继续传递控件消息，false 停止传递控件消息
+    */
+    bool OnBtnSelectAllClick(ui::EventArgs* param);
+
+	/**
 	* 处理搜索输入框内容改变的消息
 	* @param[in] param 消息的相关信息
 	* @return bool true 继续传递控件消息，false 停止传递控件消息

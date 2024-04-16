@@ -124,6 +124,12 @@ void ContactSelectForm::InitWindow()
 	ui::Button* btn_cancel = (ui::Button*)FindControl(L"cancel");
 	btn_cancel->AttachClick(nbase::Bind(&ContactSelectForm::OnBtnCancelClick, this, std::placeholders::_1));
 
+    ui::Button* btn_select_all = (ui::Button*)FindControl(L"select_all");
+    if (uid_or_tid_ == kRetweetMessage)
+        btn_select_all->AttachClick(nbase::Bind(&ContactSelectForm::OnBtnSelectAllClick, this, std::placeholders::_1));
+    else
+        btn_select_all->SetVisible(false);
+
 	if (is_multi_vchat_)
 	{
 		tool_tip_content_->SetText(ui::MutiLanSupport::GetInstance()->GetStringViaID(L"STRING_MULTIVIDEOCHATFORM_SEARCH_ORG_EMPTY").c_str());
@@ -266,6 +272,26 @@ bool ContactSelectForm::OnBtnCancelClick(ui::EventArgs* param)
 {
 	ShowWindow(false);
 	return true;
+}
+
+bool ContactSelectForm::OnBtnSelectAllClick(ui::EventArgs* param) {
+    QLOG_APP(L"select all, {0}") << param->Type;
+    for (auto& it : tree_node_ver_) {
+        for (int i = 0; i < it->GetCount(); i++) {
+            ContactListItemUI* item = (ContactListItemUI*)it->GetItemAt(i);
+            if (item) {
+                UTF8String id = item->GetUTF8DataID();
+                ui::CheckBox* checkbox = (ui::CheckBox*)item->FindSubControl(L"checkbox");
+                if (!checkbox->IsSelected()) {
+                    checkbox->Selected(true, false);
+                    SelectedContactItemUI* selected_listitem = CreateSelectedListItem(id, item->IsTeam());
+                    selected_user_list_->Add(selected_listitem);
+                    selected_user_list_->EndDown();
+				}
+			}
+        }
+    }
+    return true;
 }
 
 bool ContactSelectForm::OnSearchEditChange(ui::EventArgs* param)
